@@ -1,0 +1,25 @@
+<!-- views/pages/transactions/success.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+    
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <p>ID: <%= transId %></p>
+            <p><%= message %></p>
+        </div>
+    </main>
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+</body>
+</html>

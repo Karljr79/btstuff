@@ -1,0 +1,27 @@
+<!-- views/pages/transactions/payment_details.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <li class="list-group-item">Token ID: <%= tokenId %></li>
+            <li class="list-group-item">Card Type: <%= cardType %></li>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

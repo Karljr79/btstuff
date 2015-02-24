@@ -1,0 +1,47 @@
+<!-- views/pages/transactions/cust_addpayment.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+    
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <form id="bt-dropin" action="/customers/add" method="post">
+                <div class="input-group">
+                  <span class="input-group-addon" id="basic-addon1">First Name</span>
+                  <input type="text" class="form-control" name="firstName" placeholder="First Name" value="" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">Last Name</span>
+                  <input type="text" class="form-control" name="lastName" placeholder="Last Name" value="" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">Company</span>
+                  <input type="text" class="form-control" name="company" placeholder="Company" value="" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">@</span>
+                  <input type="text" class="form-control" name="emailAddress" placeholder="E-Mail" value="" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">Tel:</span>
+                  <input type="text" class="form-control" name="phoneNumber" placeholder="Phone Number" value="" aria-describedby="basic-addon1">
+                </div>
+                <p><input type="submit" id="submit" value="Create and Save to Vault"></p>
+            </form>
+            <script type="text/javascript" src="https://js.braintreegateway.com/v2/braintree.js"></script>
+            <script>
+               braintree.setup("<%= clientToken %>", 
+					'dropin', {
+					  container: 'bt-dropin'
+					 });
+            </script>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

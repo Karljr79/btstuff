@@ -1,0 +1,36 @@
+<!-- views/pages/transactions/cust_details.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <ul class="list-group">
+              <li class="list-group-item">Customer ID: <%= custId %></li>
+            </ul>
+            <form id="void" method="post" action="/customers/delete">
+                <input type="hidden" name="custid" value="<%= custId %>">
+			    <p><input type="submit" value="Delete"></p>
+			</form>
+			<form id="refund" method="post" action="/customers/update">
+                <input type="hidden" name="custId" value="<%= custId %>">
+			    <p><input type="submit" value="Update"></p>
+			</form>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

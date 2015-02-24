@@ -1,0 +1,44 @@
+<!-- views/pages/transactions/dropin.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <<div class="jumbotron">
+            <p><%= tagline %></p>
+            <% if (clientToken.length > 0) { %>
+            <p>Got Client Token</p>
+            <% } %>
+            <form id="checkout" method="post" action="/checkout">
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">$</span>
+                    <input type="text" class="form-control" placeholder="Amount" name="amount" id="amount" value=10 aria-describedby="basic-addon1">
+                    <input type="hidden" name="action" value="Pay">
+                </div>
+			    <p><div id="bt-dropin"></div></p>
+				<p><input type="submit" name="action" value="Pay"></p>
+			</form>  
+            <script type="text/javascript" src="https://js.braintreegateway.com/v2/braintree.js"></script>
+            <script>
+               braintree.setup("<%= clientToken %>", 
+					'dropin', {
+					  container: 'bt-dropin'
+					 });
+            </script>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

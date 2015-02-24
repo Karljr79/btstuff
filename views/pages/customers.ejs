@@ -1,0 +1,31 @@
+<!-- views/pages/customers.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <ul class="list-group">
+                <li><a href="/customers/add">Add a customer</a></li>
+                <li><a href="/customers/add_payment">Add a customer & payment method</a></li>
+                <li><a href="/customers/search">Search for a customer</a></li>
+                <li><a href="/paymentmethod/search">Search for a customer</a></li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

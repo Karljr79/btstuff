@@ -1,0 +1,30 @@
+<!-- views/pages/transactions.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <ul class="list-group">
+                <li><a href="/transactions/paypal">PayPal Only</a></li>
+                <li><a href="/transactions/dropin">Drop In UI</a></li>
+                <li><a href="/transactions/custom">Custom UI</a></li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

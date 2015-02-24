@@ -1,0 +1,34 @@
+<!-- views/pages/transactions/trans_search.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <form id="void" method="post" action="/transactions/search">
+                <div class="input-group">
+                    <p>
+                    <span class="input-group-addon" id="basic-addon1">Trans ID</span>
+                    <input type="text" class="form-control" placeholder="Trans ID" name="transid" id="transid" aria-describedby="basic-addon1">
+                    </p>
+                </div>
+				<p><input type="submit" value="Submit"></p>
+			</form>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

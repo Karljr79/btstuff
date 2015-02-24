@@ -1,0 +1,43 @@
+<!-- views/pages/transactions/trans_details.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <ul class="list-group">
+              <li class="list-group-item">Transaction ID: <%= transId %></li>
+              <li class="list-group-item">Amount: <%= amount %></li>
+              <li class="list-group-item">Payment Method: <%= paymentType %></li>
+              <li class="list-group-item">Status: <%= status %></li>
+            </ul>
+            <form id="void" method="post" action="/transactions/void">
+                <input type="hidden" name="transId" value="<%= transId %>">
+			    <p><input type="submit" value="Void"></p>
+			</form>
+			<form id="refund" method="post" action="/transactions/refund">
+                <input type="hidden" name="transId" value="<%= transId %>">
+			    <p><input type="submit" value="Refund"></p>
+			</form>
+			<form id="clone" method="post" action="/transactions/clone">
+                <input type="hidden" name="transId" value="<%= transId %>">
+			    <p><input type="submit" value="Clone"></p>
+			</form>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>
