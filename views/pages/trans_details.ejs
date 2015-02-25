@@ -21,24 +21,32 @@
               <li class="list-group-item">Status: <%= status %></li>
               <li class="list-group-item">Transaction Type: <%= type %></li>
             </ul>
-            <form id="void" method="post" id="btnVoid" action="/transactions/void">
+            <form id="void" method="post" action="/transactions/void">
                 <input type="hidden" name="transId" value="<%= transId %>">
-			    <p><input type="submit" value="Void"></p>
+			    <p><input type="submit" class="btn btn-primary" id="btnVoid" value="Void"></p>
 			</form>
 			<form id="refund" method="post" action="/transactions/refund">
                 <input type="hidden" name="transId" value="<%= transId %>">
-			    <p><input type="submit" value="Refund"></p>
+			    <p><input type="submit" class="btn btn-primary" id="btnRefund" value="Refund" disabled></p>
 			</form>
 			<form id="clone" method="post" action="/transactions/clone">
                 <input type="hidden" name="transId" value="<%= transId %>">
-			    <p><input type="submit" value="Clone"></p>
+			    <p><input type="submit" class="btn btn-primary" value="Clone"></p>
+			</form>
+			<form id="settle" method="post" action="/transactions/settle">
+                <input type="hidden" name="transId" value="<%= transId %>">
+			    <p><input type="submit" class="btn btn-primary" id="btnSettle" value="Submit for Settlement" disabled></p>
 			</form>
         </div>
     </main>
     <script>
-        if (<%= status %> === "settled") {
-            document.getElementById("test").disabled="true";
-        }
+        <% if ( status  == "settled") { %>
+            document.getElementById("btnVoid").disabled=true;
+            document.getElementById("btnRefund").disabled=false;
+        <% } %>
+        <% if ( status == "authorized" ) { %>
+            document.getElementById("btnSettle").disabled=false;
+        <% } %>
     </script>
     <footer>
         <% include ../partials/footer %>

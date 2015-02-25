@@ -311,7 +311,7 @@ app.post('/checkout/customerid', function(req, res) {
     });
 });
 
-
+//transactions void
 app.post('/transactions/void', function(req, res) {
   var reqTransId = req.body.transId;
   gateway.transaction.void(reqTransId, function (err, result) {
@@ -329,6 +329,24 @@ app.post('/transactions/void', function(req, res) {
     });
 });
 
+app.post('/transactions/settle', function(req, res) {
+  var reqTransId = req.body.transId;
+  gateway.transaction.submitForSettlement(reqTransId, function (err, result) {
+    if(err) {
+      console.log("Error Settling Transaction, this is not an AUTH please use Refund");
+    } else if (!result.success) {
+        logger.log('error', 'Error refunding transaction, message:  ' + result.message);
+        res.render('pages/error', {
+          tagline: "Failure Voiding Transaction",
+          message: result.message
+        });
+      } else {
+        res.render('pages/success', { tagline : "Success", transId: reqTransId, message: "Successfully Settled Authorization"});
+      }
+    });
+});
+
+//transactions search
 app.post('/transactions/search', function(req, res) {
   var reqTransId = req.body.transid;
   if (reqTransId){

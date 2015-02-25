@@ -19,11 +19,11 @@
             </ul>
             <form id="void" method="post" action="/customers/delete">
                 <input type="hidden" name="custid" value="<%= custId %>">
-			    <p><input type="submit" value="Delete"></p>
+			    <p><input type="submit" class="btn btn-primary"value="Delete"></p>
 			</form>
 			<form id="refund" method="post" action="/customers/update">
                 <input type="hidden" name="custId" value="<%= custId %>">
-			    <p><input type="submit" value="Update"></p>
+			    <p><input type="submit" class="btn btn-primary" value="Update"></p>
 			</form>
         </div>
     </main>
