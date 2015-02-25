@@ -14,13 +14,40 @@ var config = require('./include/config');
 //setup payment variables
 var clientToken;
 
-//finish setting up logging
-winston.add(winston.transports.File, { filename: 'logs/serverlogs.log'});
+var myCustomLevels = {
+      info: 0,
+      warn: 1,
+      error: 2,
+      webhooks: 3
+    };
+
+//set up logging transports
+var logger = new (winston.Logger)({
+  levels: myCustomLevels,
+  transports: [
+    new (winston.transports.Console)(),
+    new (winston.transports.File)({
+      name: 'webhookfile',
+      filename: 'logs/webhook-logs.log',
+      level: 'webhooks'
+    }),
+    new (winston.transports.File)({
+      name: 'infofile',
+      filename: 'logs/info-logs.log',
+      level: 'info'
+    }),
+    new (winston.transports.File)({
+      name: 'errorfile',
+      filename: 'logs/error-logs.log',
+      level: 'error'
+    })
+  ]
+});
 
 //load db
 //This would simulate the server storing a customer to use data later
 var customers = nStore.new('data/customers.db', function (){
-  winston.log('info', 'Customers Database Successfully loaded');
+  logger.log('info', 'Customers Database Successfully loaded');
 });
 
 //create BT gateway with Sandbox Partner credentials
@@ -37,11 +64,11 @@ function generateClientToken() {
     gateway.clientToken.generate({
       }, function (err, response) {
         if(err){
-          winston.log('error', "Could not get client token");
+          logger.log('error', "Could not get client token");
         } else {
-          winston.log('info', "Recieved Client Token");
+          logger.log('info', "Recieved Client Token");
           clientToken = response.clientToken;
-          winston.log('info', 'Clientoken is '+ clientToken);
+          logger.log('info', 'Clientoken is '+ clientToken);
         }
       });
 }
@@ -205,7 +232,8 @@ app.post('/checkout', function(req, res) {
 
         if (result.success) {
           reqTransId = result.transaction.id;
-          winston.log('info', 'Transaction ID: ' + reqTransId);
+          logger.log('info', 'Transaction ID: ' + reqTransId);
+          generateClientToken(); //generate a new token
           res.render('pages/success', {
             tagline: "SUCCESS",
             transId: reqTransId,
@@ -231,14 +259,15 @@ app.post('/checkout/token', function(req, res) {
 
         if (!result.success) {
           var resultMessage = result.message;
-          winston.log('error', 'Payment Token Transaction Error ' + resultMessage);
+          logger.log('error', 'Payment Token Transaction Error ' + resultMessage);
           res.render('pages/error', {
             tagline: "Failure",
             message: resultMessage
           });
         } else {
           var resultTransId = result.transaction.id;
-          winston.log('info', 'Transaction ID: ' + resultTransId);
+          logger.log('info', 'Transaction ID: ' + resultTransId);
+          generateClientToken(); //generate a new token
           res.render('pages/success', {
             tagline: "SUCCESS",
             transId: resultTransId,
@@ -264,14 +293,15 @@ app.post('/checkout/customerid', function(req, res) {
         if(err) {
           console.log("Error Voiding Transaction, this is not an AUTH please use Refund");
         } else if (!result.success) {
-          winston.log('error', 'Customer ID Transaction Error ' + result.message);
+          logger.log('error', 'Customer ID Transaction Error ' + result.message);
           res.render('pages/error', {
             tagline: "Failure",
             message: result.message
           });
         } else {
           var resultTransId = result.transaction.id;
-          winston.log('info', 'Transaction ID: ' + resultTransId);
+          logger.log('info', 'Transaction ID: ' + resultTransId);
+          generateClientToken();
           res.render('pages/success', {
             tagline: "SUCCESS",
             transId: resultTransId,
@@ -288,7 +318,7 @@ app.post('/transactions/void', function(req, res) {
     if(err) {
       console.log("Error Voiding Transaction, this is not an AUTH please use Refund");
     } else if (!result.success) {
-        winston.log('error', 'Error refunding transaction, message:  ' + result.message);
+        logger.log('error', 'Error refunding transaction, message:  ' + result.message);
         res.render('pages/error', {
           tagline: "Failure Voiding Transaction",
           message: result.message
@@ -306,7 +336,7 @@ app.post('/transactions/search', function(req, res) {
       if(err) {
         console.log("Transaction not found");
       } else {
-        winston.log('info', "Successfully found transaction id: " + reqTransId);
+        logger.log('info', "Successfully found transaction id: " + reqTransId);
         res.render('pages/trans_details', { 
           tagline : "Details",
           transId: reqTransId,
@@ -318,7 +348,7 @@ app.post('/transactions/search', function(req, res) {
       }
     });
   } else {
-    winston.log('warn', "No transaction Id provided");
+    logger.log('error', "No transaction Id provided");
     res.end();
   }
 });
@@ -330,7 +360,7 @@ app.post('/transactions/refund', function(req, res) {
     if(err) {
       console.log("Could not refund transaction");
     } else if (!result.success) {
-        winston.log('error', 'Error refunding transaction, message:  ' + result.message);
+        logger.log('error', 'Error refunding transaction, message:  ' + result.message);
         res.render('pages/error', {
           tagline: "Failure Refunding Transaction",
           message: result.message
@@ -348,13 +378,13 @@ app.post('/transactions/clone', function(req, res) {
       if(err) {
         console.log("Could not clone transaction id: " + reqTransId);
       } else if (!result.success) {
-        winston.log('error', 'Error cloning transaction, message:  ' + result.message);
+        logger.log('error', 'Error cloning transaction, message:  ' + result.message);
         res.render('pages/error', {
           tagline: "Failure Cloning Transaction",
           message: result.message
         });
       } else {
-        winston.log('info', "Successfully Cloned Transaction Id: " + reqTransId);
+        logger.log('info', "Successfully Cloned Transaction Id: " + reqTransId);
         res.render('pages/success', { tagline : "Success", transId: reqTransId, message: "Successfully Cloned Transaction"});
       }
     });
@@ -379,7 +409,7 @@ app.post('/customers/add', function(req, res) {
     paymentMethodNonce: reqNonce,
   }, function (err, result) {
     if(err) {
-      winston.log('error', "Error creating customer: " + req.body.firstName + "" + req.body.lastName);
+      logger.log('error', "Error creating customer: " + req.body.firstName + "" + req.body.lastName);
     } else {
       //store this customer in the db
       customers.save(result.customer.id, {first_name: req.body.firstName, 
@@ -390,10 +420,10 @@ app.post('/customers/add', function(req, res) {
                                             }, 
                                             function(err, key) {
         if(err){
-          winston.log('error', "Error saving record to database: " + key );
+          logger.log('error', "Error saving record to database: " + key );
         }
         else {
-          winston.log('info', "Record saved successfully to customer DB: " + key );
+          logger.log('info', "Record saved successfully to customer DB: " + key );
           res.render('pages/success', { tagline : "Success", transId: key, message: "Customer created and saved to the db"});
         }
       });
@@ -409,12 +439,12 @@ app.post('/customers/search', function(req, res) {
       if(err) {
         console.log("Customer not found");
       } else {
-        winston.log('info', "Successfully found Customer id: " + customer.id);
+        logger.log('info', "Successfully found Customer id: " + customer.id);
         res.render('pages/cust_details', { tagline : "Test",  custId : customer.id });
       }
     });
   } else {
-    winston.log('warn', "No Customer Id provided");
+    logger.log('error', "No Customer Id provided");
     res.end();
   }
 });
@@ -428,18 +458,18 @@ app.post('/customers/delete', function(req, res) {
         console.log("Customer not found");
       }
       else {
-        winston.log('info', "Successfully deleted Customer id: " + reqCustId);
+        logger.log('info', "Successfully deleted Customer id: " + reqCustId);
         customers.remove(reqCustId, function (err) {
           if (err) { throw err; }
           else {
-            winston.log('info', "Deleted from the DB: " + reqCustId );
+            logger.log('info', "Deleted from the DB: " + reqCustId );
           }
         });
         res.render('pages/cust_search', { tagline : "Search for a customer" });
       }
     });
   } else {
-    winston.log('warn', "No Customer Id provided");
+    logger.log('error', "No Customer Id provided");
     res.end();
   }
 });
@@ -452,14 +482,14 @@ app.post('/paymentmethod/search', function(req, res) {
       if(err) {
         console.log("Customer not found");
       } else {
-        winston.log('info', "Successfully found Token id: " + paymentMethod.token);
+        logger.log('info', "Successfully found Token id: " + paymentMethod.token);
         res.render('pages/payment_details', { tagline : "Details", 
                                               tokenId : paymentMethod.token,
                                               cardType: paymentMethod.cardType });
       }
     });
   } else {
-    winston.log('warn', "No Payment Token Id provided");
+    logger.log('error', "No Payment Token Id provided");
     res.end();
   }
 });
@@ -471,11 +501,31 @@ app.get('/error', function(req, res) {
     });
 });
 
-//used for one time Braintree test Webhook
-// app.get("/credentials", function (req, res) {
-//   res.send(gateway.webhookNotification.verify(req.query.bt_challenge));
-//   winston.log('info', 'Braintree Challenge Webhook Received' );
-// });
+//handle webhooks (all method because 1 time challenge will be a get)
+app.all("/webhooks", function (req, res) {
+  //for onetime braintree challenge
+  if (req.method === 'GET') {
+    res.send(gateway.webhookNotification.verify(req.query.bt_challenge));
+    logger.log('webhooks', 'Braintree Challenge Webhook Received. Challenge: ' + req.query.bt_challenge);
+    res.end();
+  } else {
+     gateway.webhookNotification.parse(
+      req.body.bt_signature,
+      req.body.bt_payload,
+      function (err, webhookNotification) {
+        if (err) { 
+          throw err; 
+        } else {
+          logger.log('webhooks', "===========New Webhook Received==========");
+          logger.log('webhooks', "Notification Type: " + webhookNotification.kind);
+          logger.log('webhooks', "This Subscription's ID: " + webhookNotification.subscription.id);
+          logger.log('webhooks', "Master Plan Id: " + webhookNotification.subscription.planId);
+          logger.log('webhooks', "Price: " + webhookNotification.subscription.price);
+          logger.log('webhooks', "===========End ==========================");
+        }
+      });
+  }
+});
 
 
 // Serve the Mobile iOS Client with the token generated above
@@ -486,11 +536,11 @@ app.get("/mobile/client_token", function (req, res) {
     gateway.clientToken.generate({
       }, function (err, response) {
         if(err){
-          winston.log('error', "Could not get client token");
+          logger.log('error', "Could not get client token");
         } else {
-          winston.log('info', "Recieved Client Token");
+          logger.log('info', "Recieved Client Token");
           clientToken = response.clientToken;
-          winston.log('info', 'Clientoken is '+ clientToken);
+          logger.log('info', 'Clientoken is '+ clientToken);
           res.send('{\"client_token\":\"'+clientToken+'\"}');
         }
       });
@@ -516,11 +566,11 @@ app.post("/mobile/payment", function (req, res){
 
         if (result.success) {
           var transid = result.transaction.id;
-          winston.log('info', 'Transaction ID: ' + transid);
+          logger.log('info', 'Transaction ID: ' + transid);
           res.send('{\"transactionID\":\"'+transid+'\"}');
           res.end();
         } else {
-          winston.log('error', result.message);
+          logger.log('error', result.message);
           res.send(500);
         }
       });
@@ -561,6 +611,6 @@ app.use(function(err, req, res, next) {
 });
 
 app.listen(process.env.PORT);
-winston.log('8080 is the magic port');
+logger.log('8080 is the magic port');
 
 module.exports = app;
