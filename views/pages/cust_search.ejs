@@ -12,17 +12,26 @@
     </header>
 
     <main>
-        <div class="jumbotron">
-            <p><%= tagline %></p>
-            <form id="cust_search" method="post" action="/customers/search">
-                <div class="input-group">
-                    <p>
-                    <span class="input-group-addon" id="basic-addon1">Customer ID</span>
-                    <input type="text" class="form-control" placeholder="Customer ID" name="custid" id="custid" aria-describedby="basic-addon1">
-                    </p>
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="jumbotron">
+                    <p><%= tagline %></p>
+                    <form id="cust_search" method="post" action="/customers/search">
+                        <div class="input-group">
+                            <p>
+                            <span class="input-group-addon" id="basic-addon1">Customer ID</span>
+                            <input type="text" class="form-control" placeholder="Customer ID" name="custid" id="custid" aria-describedby="basic-addon1">
+                            </p>
+                        </div>
+        				<p><input type="submit" value="Submit"></p>
+        			</form>
                 </div>
-				<p><input type="submit" value="Submit"></p>
-			</form>
+            </div>
+            <div class="col-sm-4">
+                <div class="well">
+                    <h3>Sidebar</h3>
+                </div>
+            </div>
         </div>
     </main>
 

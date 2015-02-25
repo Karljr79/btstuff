@@ -1,0 +1,39 @@
+<!-- views/pages/transactions/trans_customerid.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <% if (clientToken.length > 0) { %>
+            <p>Got Client Valid Token</p>
+            <% } %>
+            <form id="checkout" action="/checkout/customerid" method="post">
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">$</span>
+                    <input type="text" class="form-control" placeholder="Amount" name="amount" id="amount" value=10 aria-describedby="basic-addon1">
+                </div>
+                <div class="input-group">
+                  <span class="input-group-addon" id="basic-addon1">Customer ID</span>
+                  <input type="text" class="form-control" name="customerId" placeholder="Payment Token ID" value="" aria-describedby="basic-addon1">
+                </div>
+                <p><input type="submit" id="submit" value="Pay"></p>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

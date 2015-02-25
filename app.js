@@ -2,22 +2,20 @@
 
 //load dependencies
 var express = require('express');
-var app = express();
 var braintree = require("braintree");
 var bodyParser = require("body-parser");
 var nStore = require('nstore');
 var winston = require('winston');
+var app = express();
 
 //includes
 var config = require('./include/config');
-
 
 //setup payment variables
 var  clientToken;
 
 //finish setting up logging
 winston.add(winston.transports.File, { filename: 'logs/serverlogs.log'});
-
 
 //load db
 //This would simulate the server storing a customer to use data later
@@ -103,6 +101,25 @@ app.get('/transactions/custom', function(req, res) {
   });
 });
 
+//transactions - payment token
+app.get('/transactions/paymenttoken', function(req, res) {
+  var tagline = "Transaction with Payment Token";
+  res.render('pages/trans_paymenttoken', {
+    tagline: tagline,
+    clientToken: clientToken
+  });
+});
+
+//transactions - customer id
+app.get('/transactions/customerid', function(req, res) {
+  var tagline = "Transaction with Customer ID";
+  res.render('pages/trans_customerid', {
+    tagline: tagline,
+    clientToken: clientToken
+  });
+});
+
+
 //transactions - success
 app.get('/transactions/success', function(req, res) {
   var tagline = "Success";
@@ -121,9 +138,11 @@ app.get('/transactions/search', function(req, res) {
 
 //customers - main
 app.get('/customers', function(req, res) {
-  var tagline = "Customer Management";
+  var tagline = "Customer Functions";
+  var tagline2 = "Payment Method Functions";
   res.render('pages/customers', {
     tagline: tagline,
+    tagline2: tagline2
   });
 });
 
@@ -147,6 +166,9 @@ app.get('/customers/add_payment', function(req, res) {
 //customers - search
 app.get('/customers/search', function(req, res) {
   var tagline = "Search for a customer";
+  
+  var customerList = "";
+  
   res.render('pages/cust_search', {
     tagline: tagline,
   });
@@ -159,7 +181,6 @@ app.get('/paymentmethod/search', function(req, res) {
     tagline: tagline,
   });
 });
-
 
 
 app.post('/checkout', function(req, res) {
@@ -191,6 +212,65 @@ app.post('/checkout', function(req, res) {
             tagline: "SUCCESS",
             transId: transId,
             message: "Transaction created successfully"
+          });
+        }
+    });
+});
+
+app.post('/checkout/token', function(req, res) {
+  var token = req.body.paymentToken;
+  var amount = req.body.amount;
+  gateway.transaction.sale({
+    amount: amount,
+    orderId: "xyz123",
+    paymentMethodToken: token,
+    options: {
+      submitForSettlement: true
+    },
+    },function (err, result) {
+        console.log("new payment token sale arriving");
+        if (err) throw err;
+
+        if (result.success) {
+          var transId = result.transaction.id;
+          winston.log('info', 'Transaction ID: ' + transId);
+          res.render('pages/success', {
+            tagline: "SUCCESS",
+            transId: transId,
+            message: "Payment Token transaction created successfully"
+          });
+        }
+    });
+});
+
+app.post('/checkout/customerid', function(req, res) {
+  var customerId = req.body.customerId;
+  var amount = req.body.amount;
+  gateway.transaction.sale({
+    amount: amount,
+    orderId: "xyz123",
+    customerId: customerId,
+    options: {
+      submitForSettlement: true
+    },
+    },function (err, result) {
+        console.log("new customer ID sale arriving");
+        if (err) throw err;
+
+        if (!result.success) {
+          var message = result.message;
+          winston.log('error', 'Customer ID Transaction Error ' + message);
+          res.render('pages/error', {
+            tagline: "Failure",
+            message: message
+          });
+        } else {
+          var transId = result.transaction.id;
+          winston.log('info', 'Transaction ID: ' + transId);
+          res.render('pages/success', {
+            tagline: "SUCCESS",
+            transId: transId,
+            message: "Customer ID transaction created successfully"
           });
         }
     });
@@ -275,13 +355,13 @@ app.post('/customers/add', function(req, res) {
     nonce = req.body.payment_method_nonce;
   }
   
-  
   gateway.customer.create({
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     company: req.body.company,
     email: req.body.emailAddress,
     phone: req.body.phoneNumber,
+    id: req.body.customerId,
     paymentMethodNonce: nonce,
   }, function (err, result) {
     if(err) {
@@ -310,6 +390,7 @@ app.post('/customers/add', function(req, res) {
 
 app.post('/customers/search', function(req, res) {
   var custId = req.body.custid;
+  
   if (custId){
     gateway.customer.find(custId, function (err, customer) {
       if(err) {
@@ -386,7 +467,7 @@ app.get('/error', function(req, res) {
 
 // Serve the Mobile iOS Client with the token generated above
 //his should only be called after the /login
-app.get("/client_token", function (req, res) {
+app.get("/mobile/client_token", function (req, res) {
     
     if(gateway) {
     gateway.clientToken.generate({
@@ -408,7 +489,7 @@ app.get("/client_token", function (req, res) {
 });
 
 //handle grabbing the nonce from the client and creating a payment
-app.post("/payment", function (req, res){
+app.post("/mobile/payment", function (req, res){
   var nonce = req.body["payment-method-nonce"];
   var amount = req.body.amount;
   var vault = req.body.vault;

@@ -28,8 +28,9 @@
 				<p><input type="submit" value="Pay"></p>
 			</form>  
             <script type="text/javascript" src="https://js.braintreegateway.com/v2/braintree.js"></script>
+            <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
             <script>
-               braintree.setup("<%= clientToken %>", 
+                braintree.setup("<%= clientToken %>", 
 					'paypal', {
 					  container: 'paypal-button',
 					  enableShippingAddress: true,
@@ -40,6 +41,7 @@
 							      document.forms["checkout"].elements["countryCode"].value = shippingAddress.country_code_alpha_2;
                                 }
 					 });
+		        BraintreeData.setup("pnw68ksp2qb7h39j", 'checkout', BraintreeData.environments.sandbox);
             </script>
         </div>
     </main>
