@@ -12,7 +12,7 @@ var app = express();
 var config = require('./include/config');
 
 //setup payment variables
-var  clientToken;
+var clientToken;
 
 //finish setting up logging
 winston.add(winston.transports.File, { filename: 'logs/serverlogs.log'});
@@ -38,8 +38,7 @@ function generateClientToken() {
       }, function (err, response) {
         if(err){
           winston.log('error', "Could not get client token");
-        }
-        else {
+        } else {
           winston.log('info', "Recieved Client Token");
           clientToken = response.clientToken;
           winston.log('info', 'Clientoken is '+ clientToken);
@@ -60,61 +59,63 @@ app.set('view engine', 'ejs');
 
 //index page
 app.get('/', function(req, res) {
-  var tagline = "Welcome";
+  var resTagline = "Welcome";
   res.render('pages/index', {
-    tagline: tagline
+    tagline: resTagline
   });
 });
 
 //transactions page
 app.get('/transactions', function(req, res) {
-  var tagline = "Transactions";
+  var resTagline = "Transactions";
   res.render('pages/transactions', {
-    tagline: tagline
+    tagline: resTagline
   });
 });
 
 // transactions - PayPal Only
 app.get('/transactions/paypal', function(req, res) {
-  var tagline = "PayPal Only";
+  var resTagline = "PayPal Only";
   res.render('pages/trans_paypal', {
-    tagline: tagline,
-    clientToken: clientToken
+    tagline: resTagline,
+    clientToken: clientToken,
+    merchantId: config.merchantId
   });
 });
 
 //transactions - drop in
 app.get('/transactions/dropin', function(req, res) {
-  var tagline = "Drop In UI";
+  var resTagline = "Drop In UI";
   res.render('pages/trans_dropin', {
-    tagline: tagline,
-    clientToken: clientToken
+    tagline: resTagline,
+    clientToken: clientToken,
+    merchantId: config.merchantId
   });
 });
 
 //transactions - custom
 app.get('/transactions/custom', function(req, res) {
-  var tagline = "Custom";
+  var resTagline = "Custom";
   res.render('pages/trans_custom', {
-    tagline: tagline,
+    tagline: resTagline,
     clientToken: clientToken
   });
 });
 
 //transactions - payment token
 app.get('/transactions/paymenttoken', function(req, res) {
-  var tagline = "Transaction with Payment Token";
+  var resTagline = "Transaction with Payment Token";
   res.render('pages/trans_paymenttoken', {
-    tagline: tagline,
+    tagline: resTagline,
     clientToken: clientToken
   });
 });
 
 //transactions - customer id
 app.get('/transactions/customerid', function(req, res) {
-  var tagline = "Transaction with Customer ID";
+  var resTagline = "Transaction with Customer ID";
   res.render('pages/trans_customerid', {
-    tagline: tagline,
+    tagline: resTagline,
     clientToken: clientToken
   });
 });
@@ -122,82 +123,79 @@ app.get('/transactions/customerid', function(req, res) {
 
 //transactions - success
 app.get('/transactions/success', function(req, res) {
-  var tagline = "Success";
+  var resTagline = "Success";
   res.render('pages/success', {
-    tagline: tagline,
+    tagline: resTagline,
   });
 });
 
 //transactions - search
 app.get('/transactions/search', function(req, res) {
-  var tagline = "Search Transaction";
+  var resTagline = "Search Transaction";
   res.render('pages/trans_search', {
-    tagline: tagline,
+    tagline: resTagline,
   });
 });
 
 //customers - main
 app.get('/customers', function(req, res) {
-  var tagline = "Customer Functions";
-  var tagline2 = "Payment Method Functions";
+  var resTagline = "Customer Functions";
+  var resTagline2 = "Payment Method Functions";
   res.render('pages/customers', {
-    tagline: tagline,
-    tagline2: tagline2
+    tagline: resTagline,
+    tagline2: resTagline2
   });
 });
 
 //customers - add
 app.get('/customers/add', function(req, res) {
-  var tagline = "Add a customer";
+  var resTagline = "Add a customer";
   res.render('pages/cust_add', {
-    tagline: tagline,
+    tagline: resTagline,
   });
 });
 
 //customers - add
 app.get('/customers/add_payment', function(req, res) {
-  var tagline = "Add a customer";
+  var resTagline = "Add a customer";
   res.render('pages/cust_addpayment', {
-    tagline: tagline,
+    tagline: resTagline,
     clientToken: clientToken
   });
 });
 
 //customers - search
 app.get('/customers/search', function(req, res) {
-  var tagline = "Search for a customer";
-  
-  var customerList = "";
-  
+  var resTagline = "Search for a customer";
   res.render('pages/cust_search', {
-    tagline: tagline,
+    tagline: resTagline,
   });
 });
 
 //payment method search
 app.get('/paymentmethod/search', function(req, res) {
-  var tagline = "Search for a payment token";
+  var resTagline = "Search for a payment token";
   res.render('pages/payment_search', {
-    tagline: tagline,
+    tagline: resTagline,
   });
 });
 
 
 app.post('/checkout', function(req, res) {
-  var nonce = req.body.payment_method_nonce;
-  var amount = req.body.amount;
-  var transId, paymentType, debugId;
-  var action = req.body.action;
-  var bShouldSettle = true
+  var reqNonce = req.body.payment_method_nonce;
+  var reqAmount = req.body.amount;
+  var reqTransId, paymentType, debugId;
+  var reqSale = req.body.optradioSale;
+  var bShouldSettle = true;
   
-  if(action == "Authorize") {
+  if(reqSale == "off") {
     bShouldSettle = false;
   }
   
   gateway.transaction.sale({
-    amount: amount,
+    amount: reqAmount,
     orderId: "xyz123",
-    paymentMethodNonce: nonce,
+    paymentMethodNonce: reqNonce,
     options: {
       submitForSettlement: bShouldSettle
     },
@@ -206,11 +204,11 @@ app.post('/checkout', function(req, res) {
         if (err) throw err;
 
         if (result.success) {
-          transId = result.transaction.id;
-          winston.log('info', 'Transaction ID: ' + transId);
+          reqTransId = result.transaction.id;
+          winston.log('info', 'Transaction ID: ' + reqTransId);
           res.render('pages/success', {
             tagline: "SUCCESS",
-            transId: transId,
+            transId: reqTransId,
             message: "Transaction created successfully"
           });
         }
@@ -218,12 +216,12 @@ app.post('/checkout', function(req, res) {
 });
 
 app.post('/checkout/token', function(req, res) {
-  var token = req.body.paymentToken;
-  var amount = req.body.amount;
+  var reqToken = req.body.paymentToken;
+  var reqAmount = req.body.amount;
   gateway.transaction.sale({
-    amount: amount,
+    amount: reqAmount,
     orderId: "xyz123",
-    paymentMethodToken: token,
+    paymentMethodToken: reqToken,
     options: {
       submitForSettlement: true
     },
@@ -231,45 +229,52 @@ app.post('/checkout/token', function(req, res) {
         console.log("new payment token sale arriving");
         if (err) throw err;
 
-        if (result.success) {
-          var transId = result.transaction.id;
-          winston.log('info', 'Transaction ID: ' + transId);
+        if (!result.success) {
+          var resultMessage = result.message;
+          winston.log('error', 'Payment Token Transaction Error ' + resultMessage);
+          res.render('pages/error', {
+            tagline: "Failure",
+            message: resultMessage
+          });
+        } else {
+          var resultTransId = result.transaction.id;
+          winston.log('info', 'Transaction ID: ' + resultTransId);
           res.render('pages/success', {
             tagline: "SUCCESS",
-            transId: transId,
+            transId: resultTransId,
             message: "Payment Token transaction created successfully"
           });
         }
     });
 });
 
+//checkout with a customer ID
 app.post('/checkout/customerid', function(req, res) {
-  var customerId = req.body.customerId;
-  var amount = req.body.amount;
+  var reqCustomerId = req.body.customerId;
+  var reqAmount = req.body.amount;
   gateway.transaction.sale({
-    amount: amount,
+    amount: reqAmount,
     orderId: "xyz123",
-    customerId: customerId,
+    customerId: reqCustomerId,
     options: {
       submitForSettlement: true
     },
     },function (err, result) {
         console.log("new customer ID sale arriving");
-        if (err) throw err;
-
-        if (!result.success) {
-          var message = result.message;
-          winston.log('error', 'Customer ID Transaction Error ' + message);
+        if(err) {
+          console.log("Error Voiding Transaction, this is not an AUTH please use Refund");
+        } else if (!result.success) {
+          winston.log('error', 'Customer ID Transaction Error ' + result.message);
           res.render('pages/error', {
             tagline: "Failure",
-            message: message
+            message: result.message
           });
         } else {
-          var transId = result.transaction.id;
-          winston.log('info', 'Transaction ID: ' + transId);
+          var resultTransId = result.transaction.id;
+          winston.log('info', 'Transaction ID: ' + resultTransId);
           res.render('pages/success', {
             tagline: "SUCCESS",
-            transId: transId,
+            transId: resultTransId,
             message: "Customer ID transaction created successfully"
           });
         }
@@ -278,70 +283,79 @@ app.post('/checkout/customerid', function(req, res) {
 
 
 app.post('/transactions/void', function(req, res) {
-  var transId = req.body.transid;
-  gateway.transaction.void(transId, function (err, result) {
+  var reqTransId = req.body.transId;
+  gateway.transaction.void(reqTransId, function (err, result) {
     if(err) {
       console.log("Error Voiding Transaction, this is not an AUTH please use Refund");
-    }
-    else {
-      res.render('pages/success', {
-            tagline: "SUCCESS",
-            transId: transId,
-            message: "Transaction Voided"
-          });
-    }
-  });
+    } else if (!result.success) {
+        winston.log('error', 'Error refunding transaction, message:  ' + result.message);
+        res.render('pages/error', {
+          tagline: "Failure Voiding Transaction",
+          message: result.message
+        });
+      } else {
+        res.render('pages/success', { tagline : "Success", transId: reqTransId, message: "Successfully Voided Transaction"});
+      }
+    });
 });
 
 app.post('/transactions/search', function(req, res) {
-  var transId = req.body.transid;
-  if (transId){
-    gateway.transaction.find(transId, function (err, transaction) {
+  var reqTransId = req.body.transid;
+  if (reqTransId){
+    gateway.transaction.find(reqTransId, function (err, transaction) {
       if(err) {
         console.log("Transaction not found");
-      }
-      else {
-        winston.log('info', "Successfully found transaction id: " + transId);
+      } else {
+        winston.log('info', "Successfully found transaction id: " + reqTransId);
         res.render('pages/trans_details', { 
           tagline : "Details",
-          transId: transId,
+          transId: reqTransId,
           paymentType: transaction.paymentInstrumentType,
           amount: transaction.amount,
-          status: transaction.status
+          status: transaction.status,
+          type: transaction.type
         });
       }
     });
-  }
-  else {
-    //TODO
+  } else {
+    winston.log('warn', "No transaction Id provided");
+    res.end();
   }
 });
 
 app.post('/transactions/refund', function(req, res) {
-  var transId = req.body.transId;
-  if (transId){
-    gateway.transaction.refund(transId, function (err, result) {
-      if(err) {
-        console.log("Could not refund transaction");
-      }
-      else {
-        winston.log('info', "Successfully Refunded Id: " + transId);
-        res.render('pages/trans_search', { tagline: "Search" })
-      }
-    });
-  }
+  var reqTransId = req.body.transId;
+  
+  gateway.transaction.refund(reqTransId, function (err, result) {
+    if(err) {
+      console.log("Could not refund transaction");
+    } else if (!result.success) {
+        winston.log('error', 'Error refunding transaction, message:  ' + result.message);
+        res.render('pages/error', {
+          tagline: "Failure Refunding Transaction",
+          message: result.message
+        });
+    } else {
+      res.render('pages/success', { tagline : "Success", transId: reqTransId, message: "Successfully Refunded Transaction"});
+    }
+  });
 });
 
 app.post('/transactions/clone', function(req, res) {
-  var transId = req.body.transId;
-  if (transId){
-    gateway.transaction.cloneTransaction(transId, function (err, result) {
+  var reqTransId = req.body.transId;
+  if (reqTransId){
+    gateway.transaction.cloneTransaction(reqTransId, function (err, result) {
       if(err) {
-        console.log("Could not clone transaction id: " + transId);
-      }
-      else {
-        winston.log('info', "Successfully Cloned Transaction Id: " + transId);
-        res.render('pages/trans_search', { tagline: "Search" })
+        console.log("Could not clone transaction id: " + reqTransId);
+      } else if (!result.success) {
+        winston.log('error', 'Error cloning transaction, message:  ' + result.message);
+        res.render('pages/error', {
+          tagline: "Failure Cloning Transaction",
+          message: result.message
+        });
+      } else {
+        winston.log('info', "Successfully Cloned Transaction Id: " + reqTransId);
+        res.render('pages/success', { tagline : "Success", transId: reqTransId, message: "Successfully Cloned Transaction"});
       }
     });
   }
@@ -349,10 +363,10 @@ app.post('/transactions/clone', function(req, res) {
 
 //add a customer
 app.post('/customers/add', function(req, res) {
-  var nonce = "";
+  var reqNonce = "";
   
   if (req.body.payment_method_nonce) {
-    nonce = req.body.payment_method_nonce;
+    reqNonce = req.body.payment_method_nonce;
   }
   
   gateway.customer.create({
@@ -362,12 +376,11 @@ app.post('/customers/add', function(req, res) {
     email: req.body.emailAddress,
     phone: req.body.phoneNumber,
     id: req.body.customerId,
-    paymentMethodNonce: nonce,
+    paymentMethodNonce: reqNonce,
   }, function (err, result) {
     if(err) {
       winston.log('error', "Error creating customer: " + req.body.firstName + "" + req.body.lastName);
-    }
-    else {
+    } else {
       //store this customer in the db
       customers.save(result.customer.id, {first_name: req.body.firstName, 
                                             last_name: req.body.lastName, 
@@ -377,7 +390,7 @@ app.post('/customers/add', function(req, res) {
                                             }, 
                                             function(err, key) {
         if(err){
-          winston.log('error', "Error saving record: " + key );
+          winston.log('error', "Error saving record to database: " + key );
         }
         else {
           winston.log('info', "Record saved successfully to customer DB: " + key );
@@ -389,65 +402,65 @@ app.post('/customers/add', function(req, res) {
 });
 
 app.post('/customers/search', function(req, res) {
-  var custId = req.body.custid;
+  var reqCustId = req.body.custid;
   
-  if (custId){
-    gateway.customer.find(custId, function (err, customer) {
+  if (reqCustId){
+    gateway.customer.find(reqCustId, function (err, customer) {
       if(err) {
         console.log("Customer not found");
-      }
-      else {
+      } else {
         winston.log('info', "Successfully found Customer id: " + customer.id);
         res.render('pages/cust_details', { tagline : "Test",  custId : customer.id });
       }
     });
-  }
-  else {
-    //TODO
+  } else {
+    winston.log('warn', "No Customer Id provided");
+    res.end();
   }
 });
 
+//delete a customer
 app.post('/customers/delete', function(req, res) {
-  var custId = req.body.custid;
-  if (custId){
-    gateway.customer.delete(custId, function (err) {
+  var reqCustId = req.body.custid;
+  if (reqCustId){
+    gateway.customer.delete(reqCustId, function (err) {
       if(err) {
         console.log("Customer not found");
       }
       else {
-        winston.log('info', "Successfully deleted Customer id: " + custId);
-        customers.remove(custId, function (err) {
+        winston.log('info', "Successfully deleted Customer id: " + reqCustId);
+        customers.remove(reqCustId, function (err) {
           if (err) { throw err; }
           else {
-            winston.log('info', "Deleted from the DB: " + custId );
+            winston.log('info', "Deleted from the DB: " + reqCustId );
           }
         });
         res.render('pages/cust_search', { tagline : "Search for a customer" });
       }
     });
-  }
-  else {
-    //TODO
+  } else {
+    winston.log('warn', "No Customer Id provided");
+    res.end();
   }
 });
 
+//payment method search
 app.post('/paymentmethod/search', function(req, res) {
-  var tokenId = req.body.tokenid;
-  if (tokenId){
-    gateway.paymentMethod.find(tokenId, function (err, paymentMethod) {
+  var reqTokenId = req.body.tokenid;
+  if (reqTokenId){
+    gateway.paymentMethod.find(reqTokenId, function (err, paymentMethod) {
       if(err) {
         console.log("Customer not found");
-      }
-      else {
+      } else {
         winston.log('info', "Successfully found Token id: " + paymentMethod.token);
         res.render('pages/payment_details', { tagline : "Details", 
                                               tokenId : paymentMethod.token,
                                               cardType: paymentMethod.cardType });
       }
     });
-  }
-  else {
-    //TODO
+  } else {
+    winston.log('warn', "No Payment Token Id provided");
+    res.end();
   }
 });
 
@@ -474,16 +487,14 @@ app.get("/mobile/client_token", function (req, res) {
       }, function (err, response) {
         if(err){
           winston.log('error', "Could not get client token");
-        }
-        else {
+        } else {
           winston.log('info', "Recieved Client Token");
           clientToken = response.clientToken;
           winston.log('info', 'Clientoken is '+ clientToken);
           res.send('{\"client_token\":\"'+clientToken+'\"}');
         }
       });
-    }
-    else {
+    } else {
       res.redirect('/error' + '?message=You are not logged in, please call /login first with your merchant id');
     }
 });
@@ -513,10 +524,8 @@ app.post("/mobile/payment", function (req, res){
           res.send(500);
         }
       });
-  }
-  else //TODO add handling for saving to the vault.
-  {
-    
+  } else {
+    //TODO add handling for saving to the vault.
   }
 });
 

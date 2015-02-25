@@ -19,8 +19,9 @@
               <li class="list-group-item">Amount: <%= amount %></li>
               <li class="list-group-item">Payment Method: <%= paymentType %></li>
               <li class="list-group-item">Status: <%= status %></li>
+              <li class="list-group-item">Transaction Type: <%= type %></li>
             </ul>
-            <form id="void" method="post" action="/transactions/void">
+            <form id="void" method="post" id="btnVoid" action="/transactions/void">
                 <input type="hidden" name="transId" value="<%= transId %>">
 			    <p><input type="submit" value="Void"></p>
 			</form>
@@ -34,7 +35,11 @@
 			</form>
         </div>
     </main>
-
+    <script>
+        if (<%= status %> === "settled") {
+            document.getElementById("test").disabled="true";
+        }
+    </script>
     <footer>
         <% include ../partials/footer %>
     </footer>

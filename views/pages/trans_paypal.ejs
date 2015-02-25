@@ -41,7 +41,7 @@
 							      document.forms["checkout"].elements["countryCode"].value = shippingAddress.country_code_alpha_2;
                                 }
 					 });
-		        BraintreeData.setup("pnw68ksp2qb7h39j", 'checkout', BraintreeData.environments.sandbox);
+		        BraintreeData.setup("<%= merchantId %>", 'checkout', BraintreeData.environments.sandbox);
             </script>
         </div>
     </main>

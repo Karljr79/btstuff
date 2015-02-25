@@ -12,7 +12,7 @@
     </header>
 
     <main>
-        <<div class="jumbotron">
+        <div class="jumbotron">
             <p><%= tagline %></p>
             <% if (clientToken.length > 0) { %>
             <p>Got Client Token</p>
@@ -24,14 +24,34 @@
                     <input type="hidden" name="action" value="Pay">
                 </div>
 			    <p><div id="bt-dropin"></div></p>
-				<p><input type="submit" name="action" value="Pay"></p>
+			    <h4>Type of Transaction</h4>
+                    <div class="container">
+                        <div class="radio">
+                          <label><input type="radio" name="optradioSale" value="on" onclick="sale()">Sale</label>
+                        </div>
+                        <div class="radio">
+                          <label><input type="radio" name="optradioSale" value="off" onclick="authorize()">Authorization</label>
+                        </div>
+                    </div>
+                <h4>
+				<p><input type="submit" id="btnPayment" name="action" value="Pay"></p>
 			</form>  
             <script type="text/javascript" src="https://js.braintreegateway.com/v2/braintree.js"></script>
+            <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
             <script>
                braintree.setup("<%= clientToken %>", 
 					'dropin', {
 					  container: 'bt-dropin'
 					 });
+			    BraintreeData.setup("<%= merchantId %>", 'checkout', BraintreeData.environments.sandbox);
+			    
+			    function authorize(){
+                    document.getElementById("btnPayment").value="Authorize";
+                }
+                
+                function sale(){
+                    document.getElementById("btnPayment").value="Pay";
+                }
             </script>
         </div>
     </main>
