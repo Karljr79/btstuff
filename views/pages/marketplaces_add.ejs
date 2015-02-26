@@ -1,0 +1,57 @@
+<!-- views/pages/transactions/cust_add.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+    
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <form id="checkout" action="/marketplaces/add" method="post">
+                <p>Personal Information</p>
+                <div class="input-group">
+                  <span class="input-group-addon" id="basic-addon1">First Name</span>
+                  <input type="text" class="form-control" name="firstName" placeholder="First Name" value="Karl" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">Last Name</span>
+                  <input type="text" class="form-control" name="lastName" placeholder="Last Name" value="Hirschhorn" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">@</span>
+                  <input type="text" class="form-control" name="emailAddress" placeholder="E-Mail" value="test@example.com" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">Tel:</span>
+                  <input type="text" class="form-control" name="phoneNumber" placeholder="Phone Number" value="(415)555-1212" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">Date of Birth:</span>
+                  <input type="text" class="form-control" name="dob" placeholder="Date of Birth" value="1979-02-15" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">SSN:</span>
+                  <input type="text" class="form-control" name="ssn" placeholder="SSN" value="111-11-1111" aria-describedby="basic-addon1">
+                </div>
+                <p>Business Information</p>
+                <div class="input-group">
+                  <span class="input-group-addon" id="basic-addon1">Legal Business Name</span>
+                  <input type="text" class="form-control" name="legalName" placeholder="Business Legal Name" value="Karl's Ladders" aria-describedby="basic-addon1">  
+                  <span class="input-group-addon" id="basic-addon1">DBA Business Name</span>
+                  <input type="text" class="form-control" name="dbaName" placeholder="Business DBA Name" value="Karl's Ladders" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">TaxID</span>
+                  <input type="text" class="form-control" name="taxId" placeholder="Tax ID" value="98-7654321" aria-describedby="basic-addon1">
+                </div>
+                <p>Sub Merchant ID</p>
+                <div class="input-group">
+                  <span class="input-group-addon" id="basic-addon1">ID:</span>
+                  <input type="text" class="form-control" name="subMerchantId" placeholder="Sub Merchant ID" value="Sub1" aria-describedby="basic-addon1">  
+                </div>
+                <p><input type="submit" id="submit" value="Create"></p>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

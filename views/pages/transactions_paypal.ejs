@@ -1,0 +1,52 @@
+<!-- views/pages/transactions/paypal.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+    <header>
+        <% include ../partials/header %>
+    </header>
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <% if (clientToken.length > 0) { %>
+            <p>Got Client Token</p>
+            <% } %>
+            <form id="checkout" method="post" action="/checkout">
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">$</span>
+                    <input type="text" class="form-control" placeholder="Amount" name="amount" id="amount" value=10 aria-describedby="basic-addon1">
+                    <input type="hidden" name="shippingAddress" id="shippingAddress">
+                    <input type="hidden" name="streetAddress" id="streetAddress">
+                    <input type="hidden" name="postalCode" id="postalCode">
+                    <input type="hidden" name="countryCode" id="countryCode">
+                </div>
+			    <p><div id="paypal-button"></div></p>
+				<p><input type="submit" value="Pay"></p>
+			</form>  
+            <script type="text/javascript" src="https://js.braintreegateway.com/v2/braintree.js"></script>
+            <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
+            <script>
+                braintree.setup("<%= clientToken %>", 
+					'paypal', {
+					  container: 'paypal-button',
+					  enableShippingAddress: true,
+							  onSuccess: function (email, nonce, shippingAddress) {
+							      document.forms["checkout"].elements["shippingName"].value = shippingAddress.recipient_name;
+							      document.forms["checkout"].elements["streetAddress"].value = shippingAddress.street_address;
+							      document.forms["checkout"].elements["postalCode"].value = shippingAddress.postal_code;
+							      document.forms["checkout"].elements["countryCode"].value = shippingAddress.country_code_alpha_2;
+                                }
+					 });
+		        BraintreeData.setup("<%= merchantId %>", 'checkout', BraintreeData.environments.sandbox);
+            </script>
+        </div>
+    </main>
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+</body>
+</html>

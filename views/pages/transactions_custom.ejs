@@ -1,0 +1,52 @@
+<!-- views/pages/transactions/custom.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <% if (clientToken.length > 0) { %>
+            <p>Got Client Token</p>
+            <% } %>
+            <form id="checkout" action="/checkout" method="post">
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">$</span>
+                    <input type="text" class="form-control" placeholder="Amount" name="amount" id="amount" value=10 aria-describedby="basic-addon1">
+                </div>
+                <div class="input-group">
+                  <span class="input-group-addon" id="basic-addon1">Number</span>
+                  <input type="text" class="form-control" data-braintree-name="number" placeholder="CC Number" value="4111111111111111" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">Exp Date</span>
+                  <input type="text" class="form-control" data-braintree-name="expiration_date" placeholder="Exp Date" value="10/20" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">Cvv</span>
+                  <input type="text" class="form-control" data-braintree-name="cvv" placeholder="CVV" value="100" aria-describedby="basic-addon1">
+                  <span class="input-group-addon" id="basic-addon1">Postal Code</span>
+                  <input type="text" class="form-control" data-braintree-name="postal_code" placeholder="Postal Code" value="94061" aria-describedby="basic-addon1">
+                </div>
+                <p><input type="submit" id="submit" value="Pay"></p>
+            </form>
+			<script src='https://js.braintreegateway.com/v2/braintree.js'></script>
+			<script type="text/javascript">
+				braintree.setup("<%= clientToken %>", 
+					'custom', {
+					  id: 'checkout'
+					 });
+			</script>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>
