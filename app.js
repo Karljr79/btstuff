@@ -116,6 +116,16 @@ app.get('/transactions/customerid', function(req, res) {
   });
 });
 
+//transactions - marketplace
+app.get('/transactions/marketplace', function(req, res) {
+   var resTagline = "Marketplace Transaction with Sub Merchant";
+   res.render('pages/transactions_marketplace', {
+      tagline: resTagline,
+      clientToken: clientToken,
+      merchantId: config.merchantId
+   });
+});
+
 //transactions - success
 app.get('/transactions/success', function(req, res) {
   var resTagline = "Success";
@@ -202,7 +212,7 @@ app.get('/marketplaces/create', function(req, res) {
 app.post('/checkout', function(req, res) {
   var reqNonce = req.body.payment_method_nonce;
   var reqAmount = req.body.amount;
-  var reqTransId, paymentType, debugId;
+  var reqTransId;
   var reqSale = req.body.optradioSale;
   var bShouldSettle = true;
   
@@ -219,16 +229,61 @@ app.post('/checkout', function(req, res) {
     },
     },function (err, result) {
         console.log("new sale arriving");
-        if (err) throw err;
-
-        if (result.success) {
+        if (err) {
+          throw err;
+        } else if (!result.success) {
+          var resultMessage = result.message;
+          logs.logger.log('error', 'Payment Transaction Error ' + resultMessage);
+          res.render('pages/error', {
+            tagline: "Failure",
+            message: resultMessage
+          });
+        } else {
           reqTransId = result.transaction.id;
-          logs.logger.log('info', 'Transaction ID: ' + reqTransId);
+          logs.logger.log('info', 'Successful sale! Transaction ID: ' + reqTransId);
           generateClientToken(); //generate a new token
           res.render('pages/success', {
             tagline: "SUCCESS",
             transId: reqTransId,
-            message: "Transaction created successfully"
+            message: result.message
+          });
+        }
+    });
+});
+
+app.post('/checkout/marketplace', function(req, res) {
+  var reqNonce = req.body.payment_method_nonce;
+  var reqAmount = req.body.amount;
+  var reqSubId = req.body.subId;
+  
+  gateway.transaction.sale({
+    amount: reqAmount,
+    orderId: "xyz123",
+    paymentMethodNonce: reqNonce,
+    merchantAccountId: reqSubId,
+    serviceFeeAmount: config.masterMerchantServiceFee,
+    options: {
+      submitForSettlement: true
+    },
+    },function (err, result) {
+        console.log("new marketplace sale arriving");
+        if (err) {
+          throw err;
+        } else if (!result.success) {
+          var resultMessage = result.message;
+          logs.logger.log('error', 'Payment Token Transaction Error ' + resultMessage);
+          res.render('pages/error', {
+            tagline: "Failure",
+            message: resultMessage
+          });
+        } else {
+          var resultTransId = result.transaction.id;
+          logs.logger.log('info', 'Transaction ID: ' + resultTransId);
+          generateClientToken(); //generate a new token
+          res.render('pages/success', {
+            tagline: "SUCCESS",
+            transId: resultTransId,
+            message: "Marketplaces transaction created successfully"
           });
         }
     });
@@ -245,9 +300,9 @@ app.post('/checkout/token', function(req, res) {
     },
     },function (err, result) {
         console.log("new payment token sale arriving");
-        if (err) throw err;
-
-        if (!result.success) {
+        if (err) {
+          throw err;
+        }else if (!result.success) {
           var resultMessage = result.message;
           logs.logger.log('error', 'Payment Token Transaction Error ' + resultMessage);
           res.render('pages/error', {

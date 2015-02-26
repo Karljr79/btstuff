@@ -1,4 +1,4 @@
-<!-- views/pages/transactions/dropin.ejs -->
+<!-- views/pages/transactions/marketplace.ejs -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,22 +17,18 @@
             <% if (clientToken.length > 0) { %>
             <p>Got Client Token</p>
             <% } %>
-            <form id="checkout" method="post" action="/checkout">
+            <form id="checkout" method="post" action="/checkout/marketplace">
                 <div class="input-group">
                     <span class="input-group-addon" id="basic-addon1">$</span>
                     <input type="text" class="form-control" placeholder="Amount" name="amount" id="amount" value=10 aria-describedby="basic-addon1">
                     <input type="hidden" name="action" value="Pay">
                 </div>
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">Sub Merchant Account Id</span>
+                    <input type="text" class="form-control" placeholder="Submerchant Account Id" name="subId" id="subId" value="Sub2" aria-describedby="basic-addon1">
+                    <input type="hidden" name="action" value="Pay">
+                </div>
 			    <p><div id="bt-dropin"></div></p>
-			    <h4>Type of Transaction</h4>
-                    <div class="container">
-                        <div class="radio">
-                          <label><input type="radio" name="optradioSale" value="on" onclick="sale()">Sale</label>
-                        </div>
-                        <div class="radio">
-                          <label><input type="radio" name="optradioSale" value="off" onclick="authorize()">Authorization</label>
-                        </div>
-                    </div>
 				<p><input type="submit" id="btnPayment" name="action" value="Pay"></p>
 			</form>  
             <script type="text/javascript" src="https://js.braintreegateway.com/v2/braintree.js"></script>
@@ -43,14 +39,6 @@
 					  container: 'bt-dropin'
 					 });
 			    BraintreeData.setup("<%= merchantId %>", 'checkout', BraintreeData.environments.sandbox);
-			    
-			    function authorize(){
-                    document.getElementById("btnPayment").value="Authorize";
-                }
-                
-                function sale(){
-                    document.getElementById("btnPayment").value="Pay";
-                }
             </script>
         </div>
     </main>
