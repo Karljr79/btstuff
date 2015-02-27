@@ -4,13 +4,13 @@
 var express = require('express');
 var braintree = require("braintree");
 var bodyParser = require("body-parser");
-var nStore = require('nstore')  
 var app = express();
 
 //include modules
-var config = require('./include/constants.js');
-var submerchants = require('./include/submerchants.js');
-var logs = require('./include/logging.js');
+var config = require('./include/constants.js')
+, submerchants = require('./include/submerchants.js')
+, customers = require('./include/customers.js')
+, logs = require('./include/logging.js');
 
 var clientToken;
 
@@ -35,12 +35,6 @@ function generateClientToken() {
         }
       });
 }
-
-//load db
-//This would simulate the server storing a customer to use data later
-var customers = nStore.new('data/customers.db', function (){
-  console.log('info', 'Customers Database Successfully loaded');
-});
 
 //let's get a client token
 generateClientToken();
@@ -244,7 +238,7 @@ app.post('/checkout', function(req, res) {
           generateClientToken(); //generate a new token
           res.render('pages/success', {
             tagline: "SUCCESS",
-            transId: reqTransId,
+            id: reqTransId,
             message: result.message
           });
         }
@@ -282,7 +276,7 @@ app.post('/checkout/marketplace', function(req, res) {
           generateClientToken(); //generate a new token
           res.render('pages/success', {
             tagline: "SUCCESS",
-            transId: resultTransId,
+            id: resultTransId,
             message: "Marketplaces transaction created successfully"
           });
         }
@@ -303,11 +297,10 @@ app.post('/checkout/token', function(req, res) {
         if (err) {
           throw err;
         }else if (!result.success) {
-          var resultMessage = result.message;
-          logs.logger.log('error', 'Payment Token Transaction Error ' + resultMessage);
+          logs.logger.log('error', 'Payment Token Transaction Error ' + result.message);
           res.render('pages/error', {
             tagline: "Failure",
-            message: resultMessage
+            message: result.message
           });
         } else {
           var resultTransId = result.transaction.id;
@@ -315,7 +308,7 @@ app.post('/checkout/token', function(req, res) {
           generateClientToken(); //generate a new token
           res.render('pages/success', {
             tagline: "SUCCESS",
-            transId: resultTransId,
+            id: resultTransId,
             message: "Payment Token transaction created successfully"
           });
         }
@@ -324,12 +317,10 @@ app.post('/checkout/token', function(req, res) {
 
 //checkout with a customer ID
 app.post('/checkout/customerid', function(req, res) {
-  var reqCustomerId = req.body.customerId;
-  var reqAmount = req.body.amount;
   gateway.transaction.sale({
-    amount: reqAmount,
+    amount: req.body.amountt,
     orderId: "xyz123",
-    customerId: reqCustomerId,
+    customerId: req.body.customerId,
     options: {
       submitForSettlement: true
     },
@@ -344,12 +335,11 @@ app.post('/checkout/customerid', function(req, res) {
             message: result.message
           });
         } else {
-          var resultTransId = result.transaction.id;
-          logs.logger.log('info', 'Transaction ID: ' + resultTransId);
+          logs.logger.log('info', 'Transaction ID: ' + result.transaction.id);
           generateClientToken();
           res.render('pages/success', {
             tagline: "SUCCESS",
-            transId: resultTransId,
+            id: result.transaction.id,
             message: "Customer ID transaction created successfully"
           });
         }
@@ -429,7 +419,7 @@ app.post('/transactions/refund', function(req, res) {
           message: result.message
         });
     } else {
-      res.render('pages/success', { tagline : "Success", transId: reqTransId, message: "Successfully Refunded Transaction"});
+      res.render('pages/success', { tagline : "Success", id: reqTransId, message: "Successfully Refunded Transaction"});
     }
   });
 });
@@ -448,7 +438,7 @@ app.post('/transactions/clone', function(req, res) {
         });
       } else {
         logs.logger.log('info', "Successfully Cloned Transaction Id: " + reqTransId);
-        res.render('pages/success', { tagline : "Success", transId: reqTransId, message: "Successfully Cloned Transaction"});
+        res.render('pages/success', { tagline : "Success", id: reqTransId, message: "Successfully Cloned Transaction"});
       }
     });
   }
@@ -473,23 +463,14 @@ app.post('/customers/add', function(req, res) {
   }, function (err, result) {
     if(err) {
       logs.logger.log('error', "Error creating customer: " + req.body.firstName + "" + req.body.lastName);
+    } else if (!result.success) {
+      logs.logger.log('error', 'Customer creation Error: ' + result.message);
+      res.render('pages/error', {
+        tagline: "Failure",
+        message: result.message});
     } else {
-      //store this customer in the db
-      customers.save(result.customer.id, {first_name: req.body.firstName, 
-                                            last_name: req.body.lastName, 
-                                            company: req.body.company, 
-                                            email: req.body.emailAddress,
-                                            phone: req.body.phoneNumber
-                                            }, 
-                                            function(err, key) {
-        if(err){
-          logs.logger.log('error', "Error saving record to database: " + key );
-        }
-        else {
-          logs.logger.log('info', "Record saved successfully to customer DB: " + key );
-          res.render('pages/success', { tagline : "Success", transId: key, message: "Customer created and saved to the db"});
-        }
-      });
+      customers.saveCustomer(req, res);
+      res.render('pages/success', { tagline : "Success", id: result.merchantAccount.id, message: "Sub Merchant created and saved to the db"});
     }
   });
 });
@@ -608,7 +589,7 @@ app.post('/marketplaces/add', function(req, res) {
         message: result.message});
     } else {
         submerchants.saveSubMerchant(req, result);
-        res.render('pages/success', { tagline : "Success", transId: result.merchantAccount.id, message: "Sub Merchant created and saved to the db"});
+        res.render('pages/success', { tagline : "Success", id: result.merchantAccount.id, message: "Sub Merchant created and saved to the db"});
       }
     });
 });
@@ -652,7 +633,7 @@ app.all("/webhooks", function (req, res) {
             logs.logger.log('webhooks', "===========End ==========================");
           }
         }
-      });
+    });
   }
 });
 

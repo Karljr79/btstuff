@@ -2,6 +2,7 @@
 //all sub merchant functions here
 
 var nStore = require('nstore');
+var exports = module.exports = {};
 
 var subMerchants = nStore.new('data/submerchants.db', function (){
   console.log('Sub Merchants Database Successfully loaded');
