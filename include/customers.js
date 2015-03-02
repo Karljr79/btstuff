@@ -2,6 +2,7 @@
 //all sub merchant functions here
 
 var nStore = require('nstore');
+nStore = nStore.extend(require('nstore/query')());
 var exports = module.exports = {};
 
 var customers = nStore.new('data/customers.db', function (){
@@ -24,4 +25,15 @@ exports.saveCustomer = function(request, result) {
             return true;
           }
       });
+};
+
+exports.getCustomerIDs = function() {
+  customers.all(function(err, results){
+  if(err){
+    console.log('error', "Error saving customer record to database: ");
+    return false;
+  } else {
+    return results;
+  }
+});
 };

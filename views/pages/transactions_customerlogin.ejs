@@ -1,0 +1,32 @@
+<!-- views/pages/transactions/trans_customerlogin.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <form id="login" action="/checkout/login" method="post">
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">Customer ID</span>
+                    <input type="text" class="form-control" placeholder="Customer Id" name="custid" id="custid" aria-describedby="basic-addon1">
+                </div>
+                <p><input type="submit" id="submit" value="Login"></p>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>

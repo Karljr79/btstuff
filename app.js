@@ -23,7 +23,21 @@ var gateway = braintree.connect({
   privateKey: config.privateKey
 });
 
-function generateClientToken() {
+function generateClientTokenWithId(customerId) {
+    gateway.clientToken.generate({
+      customerId: customerId
+      }, function (err, response) {
+        if(err){
+          logs.logger.log('error', "Could not get client token");
+        } else {
+          logs.logger.log('info', "Recieved Client Token with Customer Id");
+          clientToken = response.clientToken;
+          logs.logger.log('info', 'Clientoken with Customer Id is '+ clientToken);
+        }
+      });
+}
+
+function generateClientToken(customerId) {
     gateway.clientToken.generate({
       }, function (err, response) {
         if(err){
@@ -136,6 +150,14 @@ app.get('/transactions/search', function(req, res) {
   });
 });
 
+//transactions - search
+app.get('/transactions/returning', function(req, res) {
+  var resTagline = "Returning Customer Login";
+  res.render('pages/transactions_customerlogin', {
+    tagline: resTagline,
+  });
+});
+
 //customers - main
 app.get('/customers', function(req, res) {
   var resTagline = "Customer Functions";
@@ -197,10 +219,21 @@ app.get('/marketplaces', function(req, res) {
 
 //marketplaces - add submerchant
 app.get('/marketplaces/create', function(req, res) {
-  var resTagline = "Createa Sub Merchant";
+  var resTagline = "Created Sub Merchant";
   res.render('pages/marketplaces_add', {
     tagline: resTagline,
   });
+});
+
+//"login" to the drop in
+app.post('/checkout/login', function(req, res){
+  var reqCustId = req.body.custid;
+  generateClientTokenWithId(reqCustId);
+  res.render('pages/transactions_customerid', {
+    tagline: "Returning Customer Id " + reqCustId,
+    clientToken: clientToken,
+    merchantId: config.merchantId
+  })
 });
 
 app.post('/checkout', function(req, res) {
@@ -453,25 +486,25 @@ app.post('/customers/add', function(req, res) {
   }
   
   gateway.customer.create({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    company: req.body.company,
-    email: req.body.emailAddress,
-    phone: req.body.phoneNumber,
-    id: req.body.customerId,
-    paymentMethodNonce: reqNonce,
-  }, function (err, result) {
-    if(err) {
-      logs.logger.log('error', "Error creating customer: " + req.body.firstName + "" + req.body.lastName);
-    } else if (!result.success) {
-      logs.logger.log('error', 'Customer creation Error: ' + result.message);
-      res.render('pages/error', {
-        tagline: "Failure",
-        message: result.message});
-    } else {
-      customers.saveCustomer(req, res);
-      res.render('pages/success', { tagline : "Success", id: result.merchantAccount.id, message: "Sub Merchant created and saved to the db"});
-    }
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      company: req.body.company,
+      email: req.body.emailAddress,
+      phone: req.body.phoneNumber,
+      id: req.body.customerId,
+      paymentMethodNonce: reqNonce,
+    }, function (err, result) {
+      if(err) {
+        logs.logger.log('error', "Error creating customer: " + req.body.firstName + "" + req.body.lastName);
+      } else if (!result.success) {
+        logs.logger.log('error', 'Customer creation Error: ' + result.message);
+        res.render('pages/error', {
+          tagline: "Failure",
+          message: result.message});
+      } else {
+        customers.saveCustomer(req, res);
+        res.render('pages/success', { tagline : "Success", id: result.merchantAccount.id, message: "Sub Merchant created and saved to the db"});
+      }
   });
 });
 
