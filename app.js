@@ -37,9 +37,10 @@ function generateClientTokenWithId(customerId) {
       });
 }
 
-function generateClientToken(customerId) {
+function generateClientToken() {
     gateway.clientToken.generate({
       }, function (err, response) {
+        
         if(err){
           logs.logger.log('error', "Could not get client token");
         } else {
@@ -158,7 +159,23 @@ app.get('/transactions/returning', function(req, res) {
   });
 });
 
-//customers - main
+//transactions - subscription
+app.get('/transactions/subscription', function(req, res) {
+  var resTagline = "Subscribe Customer to a Plan";
+  res.render('pages/transactions_subscription', {
+    tagline: resTagline,
+  });
+});
+
+//transactions - settlement batch
+app.get('/transactions/settlement_batch', function(req, res) {
+   var resTagline = "Settlement Batch Summary";
+   res.render('pages/transactions_settlement', {
+     tagline: resTagline
+   });
+});
+
+//customers - main DONE
 app.get('/customers', function(req, res) {
   var resTagline = "Customer Functions";
   var resTagline2 = "Payment Method Functions";
@@ -168,7 +185,7 @@ app.get('/customers', function(req, res) {
   });
 });
 
-//customers - add
+//customers - add DONE
 app.get('/customers/add', function(req, res) {
   var resTagline = "Add a customer";
   res.render('pages/cust_add', {
@@ -233,7 +250,13 @@ app.post('/checkout/login', function(req, res){
     tagline: "Returning Customer Id " + reqCustId,
     clientToken: clientToken,
     merchantId: config.merchantId
-  })
+  });
+});
+
+app.get('/customer/login', function(req, res){
+   var customer_id = req.query.customer_id;
+   generateClientToken(customer_id);
+   res.send('{\"status\":\"success\"}');
 });
 
 app.post('/checkout', function(req, res) {
@@ -315,6 +338,39 @@ app.post('/checkout/marketplace', function(req, res) {
         }
     });
 });
+
+
+app.post('/checkout/subscription', function(req, res) {
+  var reqCustId = req.body.custid;
+  var reqPlanId = req.body.planid;
+  var paymentToken;
+
+  gateway.customer.find(reqCustId, function (err, customer) {
+    if (err) {
+        res.send("No customer found for id: " + reqCustId);
+    } else {
+      paymentToken = customer.creditCards[0].token;
+
+      gateway.subscription.create({
+        paymentMethodToken: paymentToken,
+        planId: reqPlanId
+        }, function (err, result) {
+          if (err) {
+            res.send("Error Creating Subscription " + result.message);
+          } else {
+            logs.logger.log('info', "Subscription Successful");
+            generateClientToken(); //generate a new token
+            res.render('pages/success', {
+              tagline: "SUCCESS",
+              id: result.subscription.id,
+              message: "Subscription for " + reqCustId + "and Plan: " + reqPlanId + "Created"
+            });
+          }
+      });
+    }
+  });
+});
+
 
 app.post('/checkout/token', function(req, res) {
   //create the sale
@@ -477,7 +533,71 @@ app.post('/transactions/clone', function(req, res) {
   }
 });
 
-//add a customer
+app.post('/transaction/settlement_batch', function(req, res) {
+  var reqSetlementDate = req.body.date;
+  gateway.settlementBatchSummary.generate({
+    settlementDate: reqSetlementDate
+    }, function (err, result) {
+      if (err) {
+        res.send("Error: Settlement Batch " + err.message);
+      } else {
+        res.render('pages/transactions_results', {
+          tagline: "JSON Response",
+          response: JSON.stringify(result.settlementBatchSummary.records)
+        });
+      }
+    });
+});
+
+app.post('/transactions/search/amount', function(req, res) {
+    var stream = gateway.transaction.search(function (search) {
+      search.amount().between(req.body.minAmount, req.body.maxAmount);
+    });
+        
+    var transactions = [];
+
+    stream.on("data", function (transaction) {
+      transactions.push(transaction);
+    });
+
+    stream.on("error", function (err) {
+      res.send(500, err);
+    });
+
+    stream.on("end", function () {
+      res.render('pages/transactions_results', {
+          tagline: "JSON Response",
+          response: JSON.stringify(transactions)
+        });
+    });
+    stream.resume();
+});
+
+app.post('/transactions/search/status', function(req, res) {
+    var stream = gateway.transaction.search(function (search) {
+      search.status().is(req.body.status);
+    });
+        
+    var transactions = [];
+
+    stream.on("data", function (transaction) {
+      transactions.push(transaction);
+    });
+
+    stream.on("error", function (err) {
+      res.send(500, err);
+    });
+
+    stream.on("end", function () {
+      res.render('pages/transactions_results', {
+          tagline: "JSON Response",
+          response: JSON.stringify(transactions)
+        });
+    });
+    stream.resume();
+});
+
+//add a customer DONE
 app.post('/customers/add', function(req, res) {
   var reqNonce = "";
   
@@ -674,21 +794,18 @@ app.all("/webhooks", function (req, res) {
 // Serve the Mobile iOS Client with the token generated above
 //his should only be called after the /login
 app.get("/mobile/client_token", function (req, res) {
-    
     if(gateway) {
-    gateway.clientToken.generate({
-      }, function (err, response) {
-        if(err){
-          logs.logger.log('error', "Could not get client token");
-        } else {
-          logs.logger.log('info', "Recieved Client Token");
-          clientToken = response.clientToken;
-          logs.logger.log('info', 'Clientoken is '+ clientToken);
-          res.send('{\"client_token\":\"'+clientToken+'\"}');
-        }
-      });
+    if (req.query.customer_id){
+      generateClientTokenWithId(req.query.customer_id);
     } else {
-      res.redirect('/error' + '?message=You are not logged in, please call /login first with your merchant id');
+      generateClientToken();
+    }
+      //logs.logger.log('info', 'Clientoken is '+ clientToken);
+      res.setHeader('content-type', 'application/json');
+      res.send('{\"client_token\":\"'+clientToken+'\"}');
+    
+    } else {
+      res.redirect('/error' + '?message=Gateway not initialized');
     }
 });
 
@@ -757,3 +874,4 @@ app.listen(process.env.PORT);
 logs.logger.log('8080 is the magic port');
 
 module.exports = app;
+exports.clientToken = clientToken;

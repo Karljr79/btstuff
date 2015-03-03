@@ -21,6 +21,32 @@
                 </div>
 				<p><input type="submit" value="Submit"></p>
 			</form>
+			<p>Min and Max Amounts</p>
+			<form id="minmax" method="post" action="/transactions/search/amount">
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">Min Amount</span>
+                    <input type="text" class="form-control" placeholder="Min" name="minAmount" id="minAmount" aria-describedby="basic-addon1">
+                    <span class="input-group-addon" id="basic-addon1">Max Amount</span>
+                    <input type="text" class="form-control" placeholder="Max" name="maxAmount" id="maxAmount" aria-describedby="basic-addon1">
+                </div>
+				<p><input type="submit" value="Submit"></p>
+			</form>
+			<p>Search by Status</p>
+			<form id="status" method="post" action="/transactions/search/status" class='form-horizontal'>
+                <div class="form-group">
+                    <label class="col-xs-3 control-label">Status</label>
+                    <div class="col-xs-5 selectContainer">
+                        <select name="status" class="form-control" multiple title="Choose a status">
+                        <option value="authorized">Authorized</option>
+                        <option value="settled">Settled</option>
+                        <option value="voided">Voided</option>
+                        <option value="refunded">Refunded</option>
+                        <option value="processorDeclined">Processor Declined</option>
+                        </select>
+                    </div>
+                </div>
+                <p><input type="submit" value="Submit"></p>
+			</form>
         </div>
     </main>
 

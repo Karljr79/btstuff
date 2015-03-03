@@ -1,0 +1,34 @@
+<!-- views/pages/transactions/transactions_result.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <div class="container">
+              <p>The form below contains the raw response:</p>
+              <form role="form">
+                <div class="form-group">
+                  <label for="comment">Response:</label>
+                  <textarea class="form-control" rows="6" id="comment"><%= response %></textarea>
+                </div>
+              </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>
