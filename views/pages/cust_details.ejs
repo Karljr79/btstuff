@@ -25,6 +25,13 @@
                 <input type="hidden" name="custId" value="<%= custId %>">
 			    <p><input type="submit" class="btn btn-primary" value="Update"></p>
 			</form>
+            <p>The form below contains the raw response:</p>
+              <form role="form">
+                <div class="form-group">
+                  <label for="comment">Response:</label>
+                  <textarea class="form-control" rows="10" id="comment"><%= response %></textarea>
+                </div>
+              </form>
         </div>
     </main>
 

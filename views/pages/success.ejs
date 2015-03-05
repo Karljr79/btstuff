@@ -16,6 +16,14 @@
             <p><%= tagline %></p>
             <p>ID: <%= id %></p>
             <p><%= message %></p>
+            <div class="container">
+              <p>The form below contains the raw response:</p>
+              <form role="form">
+                <div class="form-group">
+                  <label for="comment">Response:</label>
+                  <textarea class="form-control" rows="12" id="comment"><%= response %></textarea>
+                </div>
+              </form>
         </div>
     </main>
     <footer>
