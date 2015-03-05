@@ -9,7 +9,6 @@ var app = express();
 //include modules
 var config = require('./include/constants.js')
 , submerchants = require('./include/submerchants.js')
-, customers = require('./include/customers.js')
 , logs = require('./include/logging.js');
 
 var clientToken;
@@ -193,7 +192,7 @@ app.get('/customers/add', function(req, res) {
   });
 });
 
-//customers - add
+//customers - add DONE
 app.get('/customers/add_payment', function(req, res) {
   var resTagline = "Add a customer";
   res.render('pages/cust_addpayment', {
@@ -202,7 +201,7 @@ app.get('/customers/add_payment', function(req, res) {
   });
 });
 
-//customers - search
+//customers - search DONE
 app.get('/customers/search', function(req, res) {
   var resTagline = "Search for a customer";
   res.render('pages/cust_search', {
@@ -622,12 +621,12 @@ app.post('/customers/add', function(req, res) {
           tagline: "Failure",
           message: result.message});
       } else {
-        customers.saveCustomer(req, res);
-        res.render('pages/success', { tagline : "Success", id: result.merchantAccount.id, message: "Sub Merchant created and saved to the db"});
+        res.render('pages/success', { tagline : "Success", id: result.customer.id, message: "Customer created and saved to the db"});
       }
   });
 });
 
+//DONE
 app.post('/customers/search', function(req, res) {
   var reqCustId = req.body.custid;
   
@@ -646,7 +645,7 @@ app.post('/customers/search', function(req, res) {
   }
 });
 
-//delete a customer
+//delete a customer DONE
 app.post('/customers/delete', function(req, res) {
   var reqCustId = req.body.custid;
   if (reqCustId){
@@ -809,6 +808,12 @@ app.get("/mobile/client_token", function (req, res) {
     }
 });
 
+//used for the BT iOS sample
+app.get('/config/current', function(req, res) {
+  res.setHeader('content-type', 'application/json');
+  res.send('{\"merchant_id\":\"'+config.merchantId+'\"}'); 
+});
+
 //handle grabbing the nonce from the client and creating a payment
 app.post("/mobile/payment", function (req, res){
   var nonce = req.body["payment-method-nonce"];
@@ -827,11 +832,12 @@ app.post("/mobile/payment", function (req, res){
         if (result.success) {
           var transid = result.transaction.id;
           logs.logger.log('info', 'Transaction ID: ' + transid);
+          res.setHeader('content-type', 'application/json');
           res.send('{\"transactionID\":\"'+transid+'\"}');
           res.end();
         } else {
           logs.logger.log('error', result.message);
-          res.send(500);
+          res.send(400);
         }
       });
   } else {
