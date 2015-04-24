@@ -2,7 +2,7 @@
 
 //load dependencies
 var express = require('express');
-var braintree = require("braintree");
+
 var bodyParser = require("body-parser");
 var app = express();
 
@@ -13,8 +13,9 @@ var config = require('./include/constants.js')
 
 var clientToken;
 
-//create BT gateway with Sandbox Partner credentials
-//these are emailed from BT Solutions
+var braintree = require("braintree");
+
+//create BT gateway with Sandbox credentials
 var gateway = braintree.connect({
   environment: braintree.Environment.Sandbox,
   merchantId: config.merchantId,
@@ -58,7 +59,7 @@ app.use(bodyParser.urlencoded({
   extended:true
 }));
 
-//set the view engine to ejs
+//set the view engine to ejs/checkout
 app.set('view engine', 'ejs');
 
 //index page
@@ -74,6 +75,19 @@ app.get('/transactions', function(req, res) {
   var resTagline = "Transactions";
   res.render('pages/transactions', {
     tagline: resTagline
+  });
+});
+
+//force a new client token
+app.get('/clientToken', function(req, res) {
+  generateClientToken();
+  var resTagline = "Success";
+  var buf = new Buffer(clientToken, 'base64');
+  res.render('pages/success', {
+    tagline: resTagline,
+    id: "Client Token",
+    message: "decoded client token is below",
+    response: buf
   });
 });
 
@@ -116,11 +130,12 @@ app.get('/transactions/paymenttoken', function(req, res) {
 });
 
 //transactions - customer id
-app.get('/transactions/customerid', function(req, res) {
+app.get('/transactions/returning', function(req, res) {
   var resTagline = "Transaction with Customer ID";
-  res.render('pages/transactions_customerid', {
+  res.render('pages/transactions_customerlogin', {
     tagline: resTagline,
-    clientToken: clientToken
+    clientToken: clientToken,
+    merchantId: config.merchantId
   });
 });
 
@@ -151,7 +166,7 @@ app.get('/transactions/search', function(req, res) {
 });
 
 //transactions - search
-app.get('/transactions/returning', function(req, res) {
+app.get('/transactions/login', function(req, res) {
   var resTagline = "Returning Customer Login";
   res.render('pages/transactions_customerlogin', {
     tagline: resTagline,
@@ -263,6 +278,7 @@ app.post('/checkout', function(req, res) {
   var reqAmount = req.body.amount;
   var reqTransId;
   var reqSale = req.body.optradioSale;
+  var reqDeviceData = req.body.device_data;
   var bShouldSettle = true;
   
   if(reqSale == "off") {
@@ -276,6 +292,7 @@ app.post('/checkout', function(req, res) {
     options: {
       submitForSettlement: bShouldSettle
     },
+    deviceData: reqDeviceData,
     },function (err, result) {
         console.log("new sale arriving");
         if (err) {
@@ -454,7 +471,7 @@ app.post('/transactions/void', function(req, res) {
       } else {
         res.render('pages/success', { 
           tagline : "Success", 
-          transId: reqTransId, 
+          id: reqTransId, 
           message: "Successfully Voided Transaction",
           response: JSON.stringify(result, null, 4)
         });
@@ -476,7 +493,7 @@ app.post('/transactions/settle', function(req, res) {
       } else {
         res.render('pages/success', { 
           tagline : "Success", 
-          transId: reqTransId, 
+          id: reqTransId, 
           message: "Successfully Settled Authorization",
           response: JSON.stringify(result, null, 4)
         });
@@ -664,6 +681,10 @@ app.post('/customers/search', function(req, res) {
     gateway.customer.find(reqCustId, function (err, customer) {
       if(err) {
         console.log("Customer not found");
+          res.render('pages/error', {
+          tagline: "Failure",
+          message: err
+        });
       } else {
         logs.logger.log('info', "Successfully found Customer id: " + customer.id);
         res.render('pages/cust_details', { tagline : "Customer Search",  custId : customer.id, response: JSON.stringify(customer, null, 4) });
@@ -682,15 +703,10 @@ app.post('/customers/delete', function(req, res) {
     gateway.customer.delete(reqCustId, function (err) {
       if(err) {
         console.log("Customer not found");
+        { throw err }
       }
       else {
         logs.logger.log('info', "Successfully deleted Customer id: " + reqCustId);
-        customers.remove(reqCustId, function (err) {
-          if (err) { throw err; }
-          else {
-            logs.logger.log('info', "Deleted from the DB: " + reqCustId );
-          }
-        });
         res.render('pages/cust_search', { tagline : "Search for a customer" });
       }
     });
@@ -706,7 +722,11 @@ app.post('/paymentmethod/search', function(req, res) {
   if (reqTokenId){
     gateway.paymentMethod.find(reqTokenId, function (err, paymentMethod) {
       if(err) {
-        console.log("Customer not found");
+        console.log("Payment Method not found");
+          res.render('pages/error', {
+          tagline: "Failure",
+          message: err
+        });
       } else {
         logs.logger.log('info', "Successfully found Token id: " + paymentMethod.token);
         res.render('pages/payment_details', { tagline : "Details", 
@@ -870,6 +890,7 @@ app.post("/mobile/payment", function (req, res){
           res.setHeader('content-type', 'application/json');
           res.send('{\"transactionID\":\"'+transid+'\"}');
           res.end();
+          generateClientToken();
         } else {
           logs.logger.log('error', result.message);
           res.send(400);
