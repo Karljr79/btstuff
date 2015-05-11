@@ -131,7 +131,7 @@ app.get('/transactions/paymenttoken', function(req, res) {
 
 //transactions - customer id
 app.get('/transactions/returning', function(req, res) {
-  var resTagline = "Transaction with Customer ID";
+  var resTagline = "Returning Customer Transaction (Customer ID)";
   res.render('pages/transactions_customerlogin', {
     tagline: resTagline,
     clientToken: clientToken,
@@ -166,10 +166,12 @@ app.get('/transactions/search', function(req, res) {
 });
 
 //transactions - search
-app.get('/transactions/login', function(req, res) {
-  var resTagline = "Returning Customer Login";
-  res.render('pages/transactions_customerlogin', {
+app.get('/transactions/hosted_fields', function(req, res) {
+  var resTagline = "Hosted Fields Example";
+  res.render('pages/transactions_hosted', {
     tagline: resTagline,
+    clientToken: clientToken,
+    merchantId: config.merchantId
   });
 });
 
@@ -951,6 +953,6 @@ app.use(function(err, req, res, next) {
 
 app.listen(process.env.PORT);
 logs.logger.log('8080 is the magic port');
-
+ 
 module.exports = app;
 exports.clientToken = clientToken;

@@ -1,0 +1,64 @@
+<!-- views/pages/transactions/custom.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <% include ../partials/head %>
+</head>
+<body class="container">
+
+    <header>
+        <% include ../partials/header %>
+    </header>
+
+    <main>
+        <div class="jumbotron">
+            <p><%= tagline %></p>
+            <% if (clientToken.length > 0) { %>
+            <p>Got Client Token</p>
+            <% } %>
+            <form id="checkout" action="/checkout" method="post">
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">$</span>
+                    <input type="text" class="form-control" placeholder="Amount" name="amount" id="amount" value=10 aria-describedby="basic-addon1">
+                </div>
+                <label for="card-number">Card Number</label>
+                <input type="text" class="form-control" id="card-number" placeholder="CC Number" value="4111111111111111" aria-describedby="basic-addon1">
+                <label for="cvv">CVV</label>
+                <input type="text" class="form-control" id="cvv" placeholder="CVV" value="100" aria-describedby="basic-addon1">
+                <label for="expiration-date">Expiration Date</label>
+                <input type="text" class="form-control" id="expiration-date" placeholder="Exp Date" value="10/20" aria-describedby="basic-addon1">
+                <p><input type="submit" id="submit" value="Pay" onclick="trackPayment()"></p>
+            </form>
+			<script type="text/javascript" src='https://js.braintreegateway.com/js/beta/braintree-hosted-fields-beta.15.js'></script>
+			<script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
+			<script type="text/javascript">
+				braintree.setup("<%= clientToken %>", 
+					'custom', {
+					  id: 'checkout',
+					  hostedFields: {
+                          number: {
+                            selector: "#card-number"
+                          },
+                          cvv: {
+                            selector: "#cvv"
+                          },
+                          expirationDate: {
+                            selector: "#expiration-date"
+                          }
+                        } 
+					 });
+					 
+				function trackPayment(){
+                    mixpanel.track("Payment - Hosted Fields");
+                }	 
+			</script>
+        </div>
+    </main>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>
