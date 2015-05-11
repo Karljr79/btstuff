@@ -44,11 +44,19 @@
                   <span class="input-group-addon" id="basic-addon1">ID:</span>
                   <input type="text" class="form-control" name="subMerchantId" placeholder="Sub Merchant ID" value="Sub1" aria-describedby="basic-addon1">  
                 </div>
-                <p><input type="submit" id="submit" value="Create"></p>
+                <p><input type="submit" id="submit" value="Create" onclick="trackMktSignUp()"></p>
             </form>
         </div>
     </main>
-
+    <script>
+        window.onload = function(){
+            mixpanel.track("Marketplace Add Merchant Page");  
+        }
+        
+        function trackMktSignUp() {
+            mixpanel.track("Marketplace Merchant Onboarding");
+        }
+    </script>
     <footer>
         <% include ../partials/footer %>
     </footer>

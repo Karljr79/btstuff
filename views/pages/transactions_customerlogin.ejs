@@ -19,10 +19,24 @@
                     <span class="input-group-addon" id="basic-addon1">Customer ID</span>
                     <input type="text" class="form-control" placeholder="Customer Id" name="custid" id="custid" aria-describedby="basic-addon1">
                 </div>
-                <p><input type="submit" id="submit" value="Login"></p>
+                <p><input type="submit" id="submit" value="Login" onclick="identifyCustomer()"></p>
             </form>
         </div>
     </main>
+    <script>
+        function identifyCustomer(){
+            var customerId = document.getElementById("custid").value;
+            mixpanel.identify(customerId);
+            
+            mixpanel.people.set({
+                "$email" : "test@example.com",
+                "first_name" : customerId,
+                "last_name" : "Doe",
+                "$last_login" : new Date(),
+                "gender" : "male"
+            });
+        }
+    </script>
 
     <footer>
         <% include ../partials/footer %>

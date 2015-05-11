@@ -23,7 +23,7 @@
                             <input type="text" class="form-control" placeholder="Customer ID" name="custid" id="custid" aria-describedby="basic-addon1">
                             </p>
                         </div>
-        				<p><input type="submit" value="Submit"></p>
+        				<p><input type="submit" value="Submit" onclick="trackSearch()"></p>
         			</form>
                 </div>
             </div>
@@ -34,6 +34,11 @@
             </div>
         </div>
     </main>
+    <script>
+        function trackSearch(){
+            mixpanel.track("Search - Customer");
+        }
+    </script>
 
     <footer>
         <% include ../partials/footer %>

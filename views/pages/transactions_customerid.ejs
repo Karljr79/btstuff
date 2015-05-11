@@ -33,7 +33,7 @@
                           <label><input type="radio" name="optradioSale" value="off" onclick="authorize()">Authorization</label>
                         </div>
                     </div>
-				<p><input type="submit" id="btnPayment" name="action" value="Pay"></p>
+				<p><input type="submit" id="btnPayment" name="action" value="Pay" onclick="trackPayment()"></p>
 			</form>  
             <script type="text/javascript" src="https://js.braintreegateway.com/v2/braintree.js"></script>
             <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
@@ -50,6 +50,12 @@
                 
                 function sale(){
                     document.getElementById("btnPayment").value="Pay";
+                }
+                
+                function trackPayment() {
+                    var amount = document.getElementById("amount").value;
+                    mixpanel.track("Payment - Returning Customer");
+                    mixpanel.people.track_charge(amount);
                 }
             </script>
         </div>

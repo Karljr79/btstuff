@@ -17,22 +17,39 @@
             <form id="checkout" action="/customers/add" method="post">
                 <div class="input-group">
                   <span class="input-group-addon" id="basic-addon1">First Name</span>
-                  <input type="text" class="form-control" name="firstName" placeholder="First Name" value="" aria-describedby="basic-addon1">
+                  <input type="text" class="form-control" name="firstName" placeholder="First Name" id="firstName" value="" aria-describedby="basic-addon1">
                   <span class="input-group-addon" id="basic-addon1">Last Name</span>
-                  <input type="text" class="form-control" name="lastName" placeholder="Last Name" value="" aria-describedby="basic-addon1">
+                  <input type="text" class="form-control" name="lastName" placeholder="Last Name" id="lastName" value="" aria-describedby="basic-addon1">
                   <span class="input-group-addon" id="basic-addon1">Company</span>
-                  <input type="text" class="form-control" name="company" placeholder="Company" value="Test Company" aria-describedby="basic-addon1">
+                  <input type="text" class="form-control" name="company" placeholder="Company" id="company" value="Test Company" aria-describedby="basic-addon1">
                   <span class="input-group-addon" id="basic-addon1">@</span>
-                  <input type="text" class="form-control" name="emailAddress" placeholder="E-Mail" value="test@example.com" aria-describedby="basic-addon1">
+                  <input type="text" class="form-control" name="emailAddress" placeholder="E-Mail" id="eMail" value="test@example.com" aria-describedby="basic-addon1">
                   <span class="input-group-addon" id="basic-addon1">Tel:</span>
-                  <input type="text" class="form-control" name="phoneNumber" placeholder="Phone Number" value="(415)555-1212" aria-describedby="basic-addon1">
+                  <input type="text" class="form-control" name="phoneNumber" placeholder="Phone Number" id="phoneNumber" value="(415)555-1212" aria-describedby="basic-addon1">
                   <span class="input-group-addon" id="basic-addon1">ID:</span>
-                  <input type="text" class="form-control" name="customerId" placeholder="ID (Optional)" value="" aria-describedby="basic-addon1">
+                  <input type="text" class="form-control" name="customerId" placeholder="ID (Optional)" id="customerId" value="" aria-describedby="basic-addon1">
                 </div>
-                <p><input type="submit" id="submit" value="Save"></p>
+                <p><input type="submit" id="submit" value="Save" onclick="addCustomer()"></p>
             </form>
         </div>
     </main>
+    <script>
+        window.onload = function(){
+            mixpanel.track("Vault - Add Customer Page");
+        }
+        
+        function addCustomer(){
+            mixpanel.identify(document.getElementById("customerId").value);
+            mixpanel.people.set({
+                "$first_name" : document.getElementById("firstName").value,
+                "$last_name" : document.getElementById("lastName").value,
+                "company" : document.getElementById("company").value,
+                "$email" : document.getElementById("eMail").value,
+                "$phone" : document.getElementById("phoneNumber").value,
+                "$created" : new Date()
+            });
+        }
+    </script>
 
     <footer>
         <% include ../partials/footer %>

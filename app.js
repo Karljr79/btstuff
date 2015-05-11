@@ -391,6 +391,7 @@ app.post('/checkout/subscription', function(req, res) {
 });
 
 
+
 app.post('/checkout/token', function(req, res) {
   //create the sale
   gateway.transaction.sale({
@@ -427,7 +428,7 @@ app.post('/checkout/token', function(req, res) {
 //checkout with a customer ID
 app.post('/checkout/customerid', function(req, res) {
   gateway.transaction.sale({
-    amount: req.body.amountt,
+    amount: req.body.amount,
     orderId: "xyz123",
     customerId: req.body.customerId,
     options: {
@@ -637,6 +638,7 @@ app.post('/transactions/search/status', function(req, res) {
     });
     stream.resume();
 });
+
 
 //add a customer DONE
 app.post('/customers/add', function(req, res) {
@@ -858,6 +860,21 @@ app.get("/mobile/client_token", function (req, res) {
       res.setHeader('content-type', 'application/json');
       res.send('{\"client_token\":\"'+clientToken+'\"}');
     
+    } else {
+      res.redirect('/error' + '?message=Gateway not initialized');
+    }
+});
+
+// Serve the Mobile Android Client with the token generated above
+//his should only be called after the /login
+app.get("/mobile/android/client_token", function (req, res) {
+    if(gateway) {
+    if (req.query.customer_id){
+      generateClientTokenWithId(req.query.customer_id);
+    } else {
+      generateClientToken();
+    }
+      res.send('{\"client_token\":\"'+clientToken+'\"}');
     } else {
       res.redirect('/error' + '?message=Gateway not initialized');
     }

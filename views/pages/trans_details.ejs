@@ -47,6 +47,9 @@
         <% if ( status == "authorized" ) { %>
             document.getElementById("btnSettle").disabled=false;
         <% } %>
+        window.onload = function(){
+            mixpanel.track("Transactions Details Page");  
+        }
     </script>
     <footer>
         <% include ../partials/footer %>

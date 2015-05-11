@@ -23,10 +23,15 @@
                     <span class="input-group-addon" id="basic-addon1">Plan ID</span>
                     <input type="text" class="form-control" placeholder="Plan Id" name="planid" id="planid" value="plan2" aria-describedby="basic-addon1">
                 </div>
-                <p><input type="submit" id="submit" value="Subscribe"></p>
+                <p><input type="submit" id="submit" value="Subscribe" onclick="trackPayment()"></p>
             </form>
         </div>
     </main>
+    <script>
+        function trackPayment(){
+            mixpanel.track("Payment - Subscription");
+        }
+    </script>
 
     <footer>
         <% include ../partials/footer %>

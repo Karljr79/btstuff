@@ -39,6 +39,11 @@
     <footer>
         <% include ../partials/footer %>
     </footer>
+    <script>
+        window.onload = function(){
+            mixpanel.track("Transactions Page");  
+        }
+    </script>
     
 </body>
 

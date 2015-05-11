@@ -32,7 +32,7 @@
                   <span class="input-group-addon" id="basic-addon1">Postal Code</span>
                   <input type="text" class="form-control" data-braintree-name="postal_code" placeholder="Postal Code" value="94061" aria-describedby="basic-addon1">
                 </div>
-                <p><input type="submit" id="submit" value="Pay"></p>
+                <p><input type="submit" id="submit" value="Pay" onclick="trackPayment()"></p>
             </form>
 			<script src='https://js.braintreegateway.com/v2/braintree.js'></script>
 			<script type="text/javascript">
@@ -40,6 +40,10 @@
 					'custom', {
 					  id: 'checkout'
 					 });
+					 
+				function trackPayment(){
+                    mixpanel.track("Payment - Custom Form");
+                }	 
 			</script>
         </div>
     </main>
