@@ -40,7 +40,10 @@
             <script>
                braintree.setup("<%= clientToken %>", 
 					'dropin', {
-					  container: 'bt-dropin'
+					  container: 'bt-dropin',
+					  onPaymentMethodReceived: function (result) {
+					      console.log(result);
+					  }
 					 });
 			    BraintreeData.setup("<%= merchantId %>", 'checkout', BraintreeData.environments.sandbox);
 			    

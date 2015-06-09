@@ -32,7 +32,8 @@
             <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
             <script>
                 braintree.setup("<%= clientToken %>", 
-					'paypal', {
+					'paypal', 
+					{
 					  container: 'paypal-button',
 					  enableShippingAddress: true,
 							  onSuccess: function (email, nonce, shippingAddress) {

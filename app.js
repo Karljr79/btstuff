@@ -70,14 +70,6 @@ app.get('/', function(req, res) {
   });
 });
 
-//transactions page
-app.get('/transactions', function(req, res) {
-  var resTagline = "Transactions";
-  res.render('pages/transactions', {
-    tagline: resTagline
-  });
-});
-
 //force a new client token
 app.get('/clientToken', function(req, res) {
   generateClientToken();
@@ -88,6 +80,14 @@ app.get('/clientToken', function(req, res) {
     id: "Client Token",
     message: "decoded client token is below",
     response: buf
+  });
+});
+
+//transactions page
+app.get('/transactions', function(req, res) {
+  var resTagline = "Transactions";
+  res.render('pages/transactions', {
+    tagline: resTagline
   });
 });
 
@@ -292,7 +292,7 @@ app.post('/checkout', function(req, res) {
     orderId: "xyz123",
     paymentMethodNonce: reqNonce,
     options: {
-      submitForSettlement: bShouldSettle
+      submitForSettlement: bShouldSettle,
     },
     deviceData: reqDeviceData,
     },function (err, result) {
@@ -484,7 +484,7 @@ app.post('/transactions/void', function(req, res) {
 
 app.post('/transactions/settle', function(req, res) {
   var reqTransId = req.body.transId;
-  gateway.transaction.submitForSettlement(reqTransId, function (err, result) {
+  gateway.transaction.submitForSettlement(reqTransId, "500.00", function (err, result) {
     if(err) {
       console.log("Error Settling Transaction, this is not an AUTH please use Refund");
     } else if (!result.success) {
@@ -691,7 +691,11 @@ app.post('/customers/search', function(req, res) {
         });
       } else {
         logs.logger.log('info', "Successfully found Customer id: " + customer.id);
-        res.render('pages/cust_details', { tagline : "Customer Search",  custId : customer.id, response: JSON.stringify(customer, null, 4) });
+        var arrCust = customer.paymentMethods;
+        res.render('pages/cust_details', { tagline : "Customer Search",  
+                                            custId : customer.id,
+                                    paymentMethods : arrCust,
+                                          response : JSON.stringify(customer.paymentMethods, null, 4) });
       }
     });
   } else {
@@ -894,7 +898,7 @@ app.post("/mobile/payment", function (req, res){
   var amount = req.body.amount;
   var vault = req.body.vault;
   
-  if (vault == "no")
+  if (vault == "no" || vault == undefined)
   {
       gateway.transaction.sale({
         amount: amount,
@@ -956,3 +960,4 @@ logs.logger.log('8080 is the magic port');
  
 module.exports = app;
 exports.clientToken = clientToken;
+exports.gateway = gateway;

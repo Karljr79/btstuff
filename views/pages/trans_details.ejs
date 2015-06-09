@@ -40,7 +40,7 @@
         </div>
     </main>
     <script>
-        <% if ( status  == "settled") { %>
+        <% if ( status  == "settled" | status == "settling") { %>
             document.getElementById("btnVoid").disabled=true;
             document.getElementById("btnRefund").disabled=false;
         <% } %>

@@ -13,9 +13,18 @@
 
     <main>
         <div class="jumbotron">
-            <p><%= tagline %></p>
+            <p><%= tagline %> for Customer ID: <%= custId %></p>
             <ul class="list-group">
-              <li class="list-group-item">Customer ID: <%= custId %></li>
+                <span class="input-group-addon" id="basic-addon1">Vaulted Payment Methods</span>
+                    <ul>
+                        <% paymentMethods.forEach(function(item){ %>
+                            <% if(item.cardType) { %>
+                            <li class="list-group-item">Card Type: <%= item.cardType + "" %><%= "  Last Four:" + item.last4 + "" %></li>
+                            <% } else { %>
+                            <li class="list-group-item"><%= "PayPal Email:" + item.email %></li>
+                            <% } %>
+                        <% }) %>
+                    </ul>
             </ul>
             <form id="void" method="post" action="/customers/delete">
                 <input type="hidden" name="custid" value="<%= custId %>">
