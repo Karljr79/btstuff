@@ -31,6 +31,7 @@
                 <p><input type="submit" id="submit" value="Pay" onclick="trackPayment()"></p>
             </form>
 			<script type="text/javascript" src='https://js.braintreegateway.com/js/beta/braintree-hosted-fields-beta.15.js'></script>
+			<script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
 			<script type="text/javascript">
 				braintree.setup("<%= clientToken %>", 
 					'custom', {

@@ -1,39 +1,25 @@
 //customers.js
-//all sub merchant functions here
+//all customer db functions here
 
 var nStore = require('nstore');
-nStore = nStore.extend(require('nstore/query')());
 var exports = module.exports = {};
 
 var customers = nStore.new('data/customers.db', function (){
-  console.log('info', 'Customers Database Successfully loaded');
+  console.log('Customers Database Successfully loaded');
 });
 
 exports.saveCustomer = function(request, result) {
-    customers.save(result.customer.id, {first_name: request.body.firstName, 
-                                            last_name: request.body.lastName, 
-                                            company: request.body.company, 
-                                            email: request.body.emailAddress,
-                                            phone: request.body.phoneNumber
-                                            },  function(err, key) {
+    customers.save(result.customer.id, {Name: request.body.firstName,
+                                                    last_name: request.body.lastName
+                                                    }, 
+                                                    function(err, key) {
           if(err){
-            console.log('error', "Error saving customer record to database: " + key );
+            console.log('error', "Error saving record to database: " + key );
             return false;
           }
           else {
-            console.log('info', "Customer record saved successfully to customer DB: " + key );
+            console.log('info', "Record saved successfully to customer DB: " + key );
             return true;
           }
       });
-};
-
-exports.getCustomerIDs = function() {
-  customers.all(function(err, results){
-  if(err){
-    console.log('error', "Error saving customer record to database: ");
-    return false;
-  } else {
-    return results;
-  }
-});
 };

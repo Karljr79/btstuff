@@ -34,7 +34,10 @@ npm-debug.log
 
 # Merchants DB
 customers.db
+submerchants.db
 
+#AppDynamics Machine Agent
+MachineAgent-4
 
 ### Cloud9 ###
 # Cloud9 IDE - http://c9.io

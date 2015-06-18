@@ -1,14 +1,29 @@
 //app.js
 
+//load App Dynamics
+require("appdynamics").profile({
+  controllerHostName: 'paid134.saas.appdynamics.com',
+  controllerPort: 443, // If SSL, be sure to enable the next line
+  accountName: 'PayPal194', // Required for a controller running in multi-tenant mode
+  accountAccessKey: 'm0hrg68g6q2v', // Required for a controller running in multi-tenant mode
+  applicationName: 'Karls BT Demo',
+  tierName: 'Payment Processing Tier',
+  nodeName: 'Node 8355-', // Node names must be unique. A unique name has been generated for you.
+  controllerSslEnabled: true // Optional - use if connecting to controller via SSL
+});
+
 //load dependencies
 var express = require('express');
 
 var bodyParser = require("body-parser");
 var app = express();
 
+app.use(express.static('public'));
+
 //include modules
 var config = require('./include/constants.js')
 , submerchants = require('./include/submerchants.js')
+, customers = require('./include/customers.js')
 , logs = require('./include/logging.js');
 
 var clientToken;
@@ -961,3 +976,4 @@ logs.logger.log('8080 is the magic port');
 module.exports = app;
 exports.clientToken = clientToken;
 exports.gateway = gateway;
+exports.braintree = braintree;

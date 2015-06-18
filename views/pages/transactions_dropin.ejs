@@ -36,15 +36,12 @@
 				<p><input type="submit" id="btnPayment" name="action" value="Pay" onclick="trackPayment()"></p>
 			</form>  
             <script type="text/javascript" src="https://js.braintreegateway.com/v2/braintree.js"></script>
-            <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
+            <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>\
             <script>
                braintree.setup("<%= clientToken %>", 
 					'dropin', {
-					  container: 'bt-dropin',
-					  onPaymentMethodReceived: function (result) {
-					      console.log(result);
-					  }
-					 });
+					  container: 'bt-dropin'
+					  });
 			    BraintreeData.setup("<%= merchantId %>", 'checkout', BraintreeData.environments.sandbox);
 			    
 			    function authorize(){
