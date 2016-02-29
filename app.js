@@ -1,17 +1,3 @@
-//app.js
-
-//load App Dynamics
-require("appdynamics").profile({
-  controllerHostName: 'paid134.saas.appdynamics.com',
-  controllerPort: 443, // If SSL, be sure to enable the next line
-  accountName: 'PayPal194', // Required for a controller running in multi-tenant mode
-  accountAccessKey: 'm0hrg68g6q2v', // Required for a controller running in multi-tenant mode
-  applicationName: 'Karls BT Demo',
-  tierName: 'Payment Processing Tier',
-  nodeName: 'Node 8355-', // Node names must be unique. A unique name has been generated for you.
-  controllerSslEnabled: true // Optional - use if connecting to controller via SSL
-});
-
 //load dependencies
 var express = require('express');
 
@@ -710,7 +696,7 @@ app.post('/customers/search', function(req, res) {
         res.render('pages/cust_details', { tagline : "Customer Search",  
                                             custId : customer.id,
                                     paymentMethods : arrCust,
-                                          response : JSON.stringify(customer.paymentMethods, null, 4) });
+                                          response : JSON.stringify(customer, null, 4) });
       }
     });
   } else {
@@ -927,6 +913,7 @@ app.post("/mobile/payment", function (req, res){
           logs.logger.log('info', 'Transaction ID: ' + transid);
           res.setHeader('content-type', 'application/json');
           res.send('{\"transactionID\":\"'+transid+'\"}');
+          res.send(200);
           res.end();
           generateClientToken();
         } else {

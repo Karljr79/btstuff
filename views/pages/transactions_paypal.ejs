@@ -36,12 +36,9 @@
 					{
 					  container: 'paypal-button',
 					  enableShippingAddress: true,
-							  onSuccess: function (email, nonce, shippingAddress) {
-							      document.forms["checkout"].elements["shippingName"].value = shippingAddress.recipient_name;
-							      document.forms["checkout"].elements["streetAddress"].value = shippingAddress.street_address;
-							      document.forms["checkout"].elements["postalCode"].value = shippingAddress.postal_code;
-							      document.forms["checkout"].elements["countryCode"].value = shippingAddress.country_code_alpha_2;
-                                }
+					  onPaymentMethodReceived: function(obj){
+					      console.log(obj);
+					  }
 					 });
 		        BraintreeData.setup("<%= merchantId %>", 'checkout', BraintreeData.environments.sandbox);
 		        
