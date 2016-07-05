@@ -29,7 +29,7 @@
                 <div id="cvv" class="form-control"></div>
                 <label for="expiration-date">Expiration Date</label>
                 <div id="expiration-date" class="form-control"></div>
-                <p><input type="submit" id="submit" value="Pay" onclick="trackPayment()"></p>
+                <p><input type="submit" id="submit" value="Pay"></p>
             </form>
 			<script type="text/javascript" src='https://js.braintreegateway.com/js/beta/braintree-hosted-fields-beta.17.js'></script>
 			<script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
@@ -80,10 +80,6 @@
                           },
                         } 
 					 });
-					 
-				function trackPayment(){
-                    mixpanel.track("Payment - Hosted Fields");
-                }	 
 			</script>
         </div>
     </main>

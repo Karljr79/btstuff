@@ -26,15 +26,10 @@
                   <span class="input-group-addon" id="basic-addon1">Payment Token</span>
                   <input type="text" class="form-control" name="paymentToken" placeholder="Payment Token ID" value="" aria-describedby="basic-addon1">
                 </div>
-                <p><input type="submit" id="submit" value="Pay" onclick="trackPayment()"></p>
+                <p><input type="submit" id="submit" value="Pay"></p>
             </form>
         </div>
     </main>
-    <script>
-        function trackPayment(){
-            mixpanel.track("Payment - Token");
-        }
-    </script>
 
     <footer>
         <% include ../partials/footer %>

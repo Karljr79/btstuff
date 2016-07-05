@@ -15,7 +15,7 @@
     "ejs": "*",
     "winston": "*",
     "nstore": "*",
-    "appdynamics": "~4.0.6"
+    "unirest": "*"
   }
 }
 

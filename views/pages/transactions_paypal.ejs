@@ -26,7 +26,7 @@
                     <input type="hidden" name="phoneNumber" id="phoneNumber">
                 </div>
 			    <p><div id="paypal-button"></div></p>
-				<p><input type="submit" value="Pay" onclick="trackPayment()"></p>
+				<p><input type="submit" value="Pay"></p>
 			</form>  
             <script type="text/javascript" src="https://js.braintreegateway.com/v2/braintree.js"></script>
             <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
@@ -41,10 +41,6 @@
 					  }
 					 });
 		        BraintreeData.setup("<%= merchantId %>", 'checkout', BraintreeData.environments.sandbox);
-		        
-		        function trackPayment(){
-                    mixpanel.track("Payment - PayPal Only");
-                }
             </script>
         </div>
     </main>

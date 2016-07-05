@@ -29,27 +29,10 @@
                   <span class="input-group-addon" id="basic-addon1">ID:</span>
                   <input type="text" class="form-control" name="customerId" placeholder="ID (Optional)" id="customerId" value="" aria-describedby="basic-addon1">
                 </div>
-                <p><input type="submit" id="submit" value="Save" onclick="addCustomer()"></p>
+                <p><input type="submit" id="submit" value="Save"></p>
             </form>
         </div>
     </main>
-    <script>
-        window.onload = function(){
-            mixpanel.track("Vault - Add Customer Page");
-        }
-        
-        function addCustomer(){
-            mixpanel.identify(document.getElementById("customerId").value);
-            mixpanel.people.set({
-                "$first_name" : document.getElementById("firstName").value,
-                "$last_name" : document.getElementById("lastName").value,
-                "company" : document.getElementById("company").value,
-                "$email" : document.getElementById("eMail").value,
-                "$phone" : document.getElementById("phoneNumber").value,
-                "$created" : new Date()
-            });
-        }
-    </script>
 
     <footer>
         <% include ../partials/footer %>

@@ -1,6 +1,7 @@
+
 //load dependencies
 var express = require('express');
-
+var unirest = require('unirest');
 var bodyParser = require("body-parser");
 var app = express();
 
@@ -50,6 +51,15 @@ function generateClientToken() {
           logs.logger.log('info', 'Clientoken is '+ clientToken);
         }
       });
+}
+
+function sendTestRequest(testParam) {
+  unirest.post(config.testURL)
+    .header('Accept', 'application/json')
+    .send({ "testParam": testParam })
+    .end(function (response) {
+  logs.logger.log(response.body);
+});
 }
 
 //let's get a client token
@@ -283,6 +293,8 @@ app.post('/checkout', function(req, res) {
   var reqSale = req.body.optradioSale;
   var reqDeviceData = req.body.device_data;
   var bShouldSettle = true;
+  
+  sendTestRequest(req.body.amount);
   
   if(reqSale == "off") {
     bShouldSettle = false;
@@ -895,7 +907,7 @@ app.get('/config/current', function(req, res) {
 
 //handle grabbing the nonce from the client and creating a payment
 app.post("/mobile/payment", function (req, res){
-  var nonce = req.body["payment-method-nonce"];
+  var nonce = req.body["payment_method_nonce"];
   var amount = req.body.amount;
   var vault = req.body.vault;
   
@@ -910,9 +922,11 @@ app.post("/mobile/payment", function (req, res){
 
         if (result.success) {
           var transid = result.transaction.id;
+          var message = "Successfully Created Transaction";
           logs.logger.log('info', 'Transaction ID: ' + transid);
           res.setHeader('content-type', 'application/json');
           res.send('{\"transactionID\":\"'+transid+'\"}');
+          res.send('{\"message\":\"'+message+'\"}');
           res.send(200);
           res.end();
           generateClientToken();

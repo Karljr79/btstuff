@@ -29,7 +29,7 @@
                     <input type="hidden" name="action" value="Pay">
                 </div>
 			    <p><div id="bt-dropin"></div></p>
-				<p><input type="submit" id="btnPayment" name="action" value="Pay" onclick="trackPayment()"></p>
+				<p><input type="submit" id="btnPayment" name="action" value="Pay"></p>
 			</form>  
             <script type="text/javascript" src="https://js.braintreegateway.com/v2/braintree.js"></script>
             <script type="text/javascript" src="https://js.braintreegateway.com/v1/braintree-data.js"></script>
@@ -39,10 +39,6 @@
 					  container: 'bt-dropin'
 					 });
 			    BraintreeData.setup("<%= merchantId %>", 'checkout', BraintreeData.environments.sandbox);
-			    
-			    function trackPayment(){
-                    mixpanel.track("Payment - Marketplace");
-                }
             </script>
         </div>
     </main>
